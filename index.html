@@ -11,7 +11,7 @@
     <!-- Tailwind Typography for nice Markdown styling -->
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     
-    <!-- LOAD ARTICLES FROM SEPARATE FILE -->
+    <!-- IMPORTANT: This loads your real articles from the other file -->
     <script src="posts.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -44,6 +44,8 @@
         .prose h1, .prose h2, .prose h3 { color: #f1f5f9; font-weight: 800; }
         .prose p { color: #cbd5e1; }
         .prose strong { color: #22d3ee; }
+        .prose ul { color: #cbd5e1; }
+        .prose li::marker { color: #818cf8; }
         .prose code { color: #f472b6; background: #334155; padding: 2px 4px; border-radius: 4px; font-weight: normal; }
         .prose pre { background: #0d1117 !important; border: 1px solid #334155; }
         .prose pre code { background: transparent; padding: 0; color: #e2e8f0; }
@@ -77,7 +79,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v2.5</div>
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v2.6</div>
                     <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
                 </div>
             </div>
@@ -151,15 +153,15 @@
                         <div class="space-y-2">
                             <div onclick="filterCategory('performance')" class="flex justify-between items-center p-2 rounded hover:bg-surfaceHighlight cursor-pointer group">
                                 <span class="text-sm text-gray-300 group-hover:text-primary transition">Performance</span>
-                                <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted">12</span>
+                                <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted" id="count-performance">0</span>
                             </div>
                             <div onclick="filterCategory('tsql')" class="flex justify-between items-center p-2 rounded hover:bg-surfaceHighlight cursor-pointer group">
                                 <span class="text-sm text-gray-300 group-hover:text-secondary transition">T-SQL</span>
-                                <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted">8</span>
+                                <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted" id="count-tsql">0</span>
                             </div>
                             <div onclick="filterCategory('dba')" class="flex justify-between items-center p-2 rounded hover:bg-surfaceHighlight cursor-pointer group">
                                 <span class="text-sm text-gray-300 group-hover:text-green-400 transition">Administration</span>
-                                <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted">5</span>
+                                <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted" id="count-dba">0</span>
                             </div>
                         </div>
                     </div>
@@ -182,9 +184,15 @@
 
             // Check if blogPosts exists (loaded from posts.js)
             if (typeof blogPosts === 'undefined') {
-                container.innerHTML = `<div class="text-center text-red-400 py-10">Error: posts.js not loaded. Make sure both files are in the same folder.</div>`;
+                container.innerHTML = `<div class="text-center text-red-400 py-10">
+                    <p class="font-bold text-lg mb-2">Error: Articles not found.</p>
+                    <p class="text-sm">Make sure <code>posts.js</code> is in the same folder as <code>index.html</code>.</p>
+                </div>`;
                 return;
             }
+
+            // Update Sidebar Counts
+            updateCounts();
 
             const filteredPosts = blogPosts.filter(post => filter === 'all' || post.category === filter);
 
@@ -215,7 +223,7 @@
                                 ${post.summary}
                             </p>
                             <div class="flex items-center justify-between border-t border-surfaceHighlight pt-4">
-                                <div class="fl6ex items-center gap-3">
+                                <div class="flex items-center gap-3">
                                     <div class="h-8 w-8 rounded-full bg-surfaceHighlight flex items-center justify-center text-white font-bold text-xs">${post.author.charAt(0)}</div>
                                     <span class="text-sm font-medium text-textMuted">${post.author} • ${post.date}</span>
                                 </div>
@@ -229,6 +237,18 @@
                 container.innerHTML += html;
             });
             lucide.createIcons();
+        }
+
+        function updateCounts() {
+            if (typeof blogPosts === 'undefined') return;
+            
+            const perfCount = blogPosts.filter(p => p.category === 'performance').length;
+            const tsqlCount = blogPosts.filter(p => p.category === 'tsql').length;
+            const dbaCount = blogPosts.filter(p => p.category === 'dba').length;
+
+            document.getElementById('count-performance').innerText = perfCount;
+            document.getElementById('count-tsql').innerText = tsqlCount;
+            document.getElementById('count-dba').innerText = dbaCount;
         }
 
         // 2. Open Article View
