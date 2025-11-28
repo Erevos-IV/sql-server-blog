@@ -38,6 +38,7 @@ To ensure the installation completes successfully, you need to manually install 
 Once this is done, try running the SSMS installer again. It should now proceed without the signature verification error.
 
 ### References
+* [Create an offline installation of SQL Server Management Studio (SSMS)](https://learn.microsoft.com/en-us/ssms/install/create-offline)
 * [Validate a certificate for offline installations (Microsoft Learn)](https://learn.microsoft.com/en-us/ssms/install/install-certificates)
         `
     }
