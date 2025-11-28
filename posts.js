@@ -1,97 +1,44 @@
 const blogPosts = [
     {
         id: 1,
-        title: "Understanding Parameter Sniffing",
-        category: "performance",
-        categoryColor: "primary",
-        date: "Nov 28, 2025",
-        readTime: "10 min",
-        author: "John Doe",
-        summary: "When SQL Server compiles a stored procedure, it creates an execution plan based on the parameters provided at that specific moment. This is the 'Goldilocks' problem.",
-        content: `
-# The Parameter Sniffing Problem
-
-Parameter sniffing is a feature, not a bug. It refers to the process where SQL Server's query optimizer "sniffs" the parameter values during compilation.
-
-### Why is it bad?
-The issue arises when the first parameter used to compile the plan is not representative of the typical workload. 
-
-For example:
-1. You compile with \`@ID = 1\` (returns 1 row) -> **Index Seek**
-2. You run with \`@ID = 2\` (returns 1M rows) -> **Index Seek** (Should be Scan!)
-
-### Example Code
-\`\`\`sql
-CREATE PROCEDURE GetOrders (@ClientID INT)
-AS
-SELECT * FROM Orders WHERE ClientID = @ClientID;
--- If run with ClientID=1 (returns 1 row) -> Plan A (Seek)
--- If run with ClientID=2 (returns 1M rows) -> Plan A crashes performance
-\`\`\`
-
-### The Solution: PSP Optimization
-In SQL Server 2022, Microsoft introduced **Parameter Sensitive Plan (PSP) optimization**.
-        `
-    },
-    {
-        id: 2,
-        title: "Identify Unused Indexes Quickly",
-        category: "tsql",
-        categoryColor: "secondary",
-        date: "Nov 25, 2025",
-        readTime: "3 min",
-        author: "SysAdmin",
-        summary: "Indexes that aren't used for seeks or scans still incur overhead during inserts. Find the dead weight with this simple DMV query.",
-        content: `
-# Finding Dead Indexes
-
-Every index on your table slows down \`INSERT\`, \`UPDATE\`, and \`DELETE\` operations. If an index isn't being used for reads, it is pure overhead.
-
-Here is the query to find them:
-
-\`\`\`sql
-SELECT 
-    o.name AS ObjectName,
-    i.name AS IndexName,
-    s.user_seeks,
-    s.user_scans,
-    s.user_lookups
-FROM sys.dm_db_index_usage_stats s
-JOIN sys.indexes i ON i.object_id = s.object_id AND i.index_id = s.index_id
-JOIN sys.objects o ON i.object_id = o.object_id
-WHERE 
-    s.database_id = DB_ID()
-    AND s.user_seeks = 0
-    AND s.user_scans = 0
-    AND s.user_lookups = 0
-    AND i.type_desc = 'NONCLUSTERED';
-\`\`\`
-
-**Note:** Be careful, these stats reset when SQL Server restarts!
-        `
-    },
-    {
-        id: 3,
-        title: "Transaction Log Management",
+        title: "Fix: SSMS Offline Installation Certificate Error",
         category: "dba",
         categoryColor: "green-400",
-        date: "Nov 22, 2025",
-        readTime: "15 min",
-        author: "John Doe",
-        summary: "Is your T-Log filling up? Before you shrink it, understand why it's growing. We discuss VLF fragmentation and recovery models.",
+        date: "Nov 28, 2025",
+        readTime: "3 min",
+        author: "Admin",
+        summary: "Encountered 'Error 0x80131509: Signature verification failed' while installing SSMS offline? Here is the fix involving the Microsoft Windows Code Signing PCA 2024 certificate.",
         content: `
-# Stop Shrinking Your Logs!
+# SSMS Offline Installation Error: Invalid Certificate
 
-Transaction logs need to grow. If you shrink them, they just have to grow again, which causes **VLF Fragmentation**.
+I recently faced an issue while trying to perform an offline installation of SSMS (SQL Server Management Studio) on a secure server.
 
-### What is a VLF?
-A Virtual Log File (VLF) is a unit of internal management. Too many VLFs make recovery slow.
+After moving the installation folder to the offline server and running the \`SETUP.exe\`, the installation failed immediately. Upon checking the logs in \`%TEMP%\`, I found the following error:
 
-> "The only time you should shrink a log file is if it grew due to an abnormal event that won't happen again."
+\`\`\`text
+Certificate is invalid: <YourSSMSFolder>\\vs_installer.opc
+Error: Unable to verify the certificate: InvalidCertificate
+Error 0x80131509: Signature verification failed. 
+Error: Unable to verify the integrity of the installation files: the certificate could not be verified.
+\`\`\`
 
-### Best Practices
-- Pre-grow your log files.
-- Set autogrowth to a fixed size (e.g., 512MB), not a percentage.
+This usually happens because the offline machine is missing the newer root certificates required to validate the installer's signature.
+
+### The Solution
+
+To ensure the installation completes successfully, you need to manually install the missing certificate.
+
+1.  **Download the Certificate:** On a machine with an internet connection, download the [Microsoft Windows Code Signing PCA 2024 certificate](https://www.microsoft.com/pkiops/certs/Microsoft%20Windows%20Code%20Signing%20PCA%202024.crt).
+2.  **Transfer:** Move the \`.crt\` file to your offline machine.
+3.  **Install:** Right-click the \`.crt\` file and select **Install Certificate**.
+4.  **Store Location:** Select **Local Machine** and click Next.
+5.  **Certificate Store:** Keep **"Automatically select the certificate store based on the type of certificate"** selected, then click Next.
+6.  **Finish:** Click Finish. You should see the prompt: *"The import was successful."*
+
+Once this is done, try running the SSMS installer again. It should now proceed without the signature verification error.
+
+### References
+* [Validate a certificate for offline installations (Microsoft Learn)](https://learn.microsoft.com/en-us/ssms/install/install-certificates)
         `
     }
 ];
