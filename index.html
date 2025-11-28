@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The SQL Set | Dark Mode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Marked.js for converting Markdown to HTML -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Tailwind Typography for nice Markdown styling -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#0f172a', /* slate-900 */
+                        surface: '#1e293b',    /* slate-800 */
+                        surfaceHighlight: '#334155', /* slate-700 */
+                        primary: '#22d3ee',    /* cyan-400 */
+                        secondary: '#818cf8',  /* indigo-400 */
+                        textMain: '#f1f5f9',   /* slate-100 */
+                        textMuted: '#94a3b8',  /* slate-400 */
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom Markdown Styling (Prose overrides) */
+        .prose h1, .prose h2, .prose h3 { color: #f1f5f9; font-weight: 800; }
+        .prose p { color: #cbd5e1; }
+        .prose strong { color: #22d3ee; }
+        .prose code { color: #f472b6; background: #334155; padding: 2px 4px; border-radius: 4px; font-weight: normal; }
+        .prose pre { background: #0d1117 !important; border: 1px solid #334155; }
+        .prose pre code { background: transparent; padding: 0; color: #e2e8f0; }
+        .prose blockquote { border-left-color: #22d3ee; color: #94a3b8; font-style: italic; }
+        .prose a { color: #818cf8; text-decoration: none; }
+        .prose a:hover { text-decoration: underline; }
+        
+        /* Transitions */
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden-view { display: none; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="bg-surface border-b border-surfaceHighlight sticky top-0 z-50 backdrop-blur-md bg-opacity-90">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer group" onclick="showHome()">
+                        <i data-lucide="database" class="w-8 h-8 text-primary group-hover:rotate-12 transition-transform"></i>
+                        <span class="font-extrabold text-xl tracking-tight text-white">The SQL <span class="text-primary">Set</span></span>
+                    </div>
+                    <!-- Desktop Nav -->
+                    <div class="hidden sm:ml-8 sm:flex sm:space-x-4">
+                        <button onclick="filterCategory('all')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-white bg-surfaceHighlight">Latest</button>
+                        <button onclick="filterCategory('performance')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">Performance</button>
+                        <button onclick="filterCategory('tsql')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">T-SQL</button>
+                        <button onclick="filterCategory('dba')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">DBA Life</button>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v2.5 (Markdown)</div>
+                    <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content Area -->
+    <div id="main-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+            
+            <!-- LEFT COLUMN: Dynamic Content -->
+            <main class="lg:col-span-8">
+                
+                <!-- VIEW 1: Article List (Home) -->
+                <div id="home-view" class="space-y-6 fade-in">
+                    <!-- Hero Banner -->
+                    <div class="bg-gradient-to-r from-surface to-background border border-surfaceHighlight rounded-2xl p-8 mb-8 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10"><i data-lucide="server" class="w-48 h-48"></i></div>
+                        <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-4 relative z-10">
+                            Master Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Data Platform</span>
+                        </h1>
+                        <p class="text-textMuted text-lg mb-6 max-w-xl relative z-10">
+                            No fluff. Just deep internals, query tuning, and T-SQL patterns for the modern database professional.
+                        </p>
+                    </div>
+
+                    <!-- Article List Container (Populated by JS) -->
+                    <div id="article-list-container" class="space-y-6"></div>
+                </div>
+
+                <!-- VIEW 2: Article Detail -->
+                <div id="article-view" class="hidden-view space-y-6 fade-in">
+                    <button onclick="showHome()" class="text-textMuted hover:text-primary flex items-center gap-2 mb-6 transition">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Articles
+                    </button>
+
+                    <!-- Article Content Container (Populated by JS) -->
+                    <div id="article-content-container"></div>
+
+                    <!-- Comments Section Simulation -->
+                    <div class="bg-surface rounded-xl border border-surfaceHighlight p-6">
+                        <h3 class="font-bold text-white mb-4">Discussion</h3>
+                        <div class="flex gap-4">
+                            <div class="h-10 w-10 rounded-full bg-surfaceHighlight flex-shrink-0"></div>
+                            <input type="text" placeholder="Add to the discussion..." class="w-full bg-background border border-surfaceHighlight rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary transition">
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- RIGHT COLUMN: Sidebar (Sticky) -->
+            <aside class="hidden lg:block lg:col-span-4 space-y-6">
+                <!-- About Widget -->
+                <div class="bg-surface rounded-xl border border-surfaceHighlight p-6 sticky top-24">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-secondary p-0.5">
+                            <div class="w-full h-full bg-surface rounded-xl flex items-center justify-center">
+                                <i data-lucide="terminal" class="text-primary w-8 h-8"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-white">The SQL Author</h3>
+                            <p class="text-xs text-textMuted">Senior DBA & Engineer</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-textMuted mb-4">
+                        15+ years managing multi-terabyte datasets. Obsessed with wait stats, query plans, and automation.
+                    </p>
+                    <div class="mt-8 pt-6 border-t border-surfaceHighlight">
+                        <h4 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-4">Categories</h4>
+                        <div class="space-y-2">
+                            <div onclick="filterCategory('performance')" class="flex justify-between items-center p-2 rounded hover:bg-surfaceHighlight cursor-pointer group">
+                                <span class="text-sm text-gray-300 group-hover:text-primary transition">Performance</span>
+                                <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted">12</span>
+                            </div>
+                            <div onclick="filterCategory('tsql')" class="flex justify-between items-center p-2 rounded hover:bg-surfaceHighlight cursor-pointer group">
+                                <span class="text-sm text-gray-300 group-hover:text-secondary transition">T-SQL</span>
+                                <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted">8</span>
+                            </div>
+                            <div onclick="filterCategory('dba')" class="flex justify-between items-center p-2 rounded hover:bg-surfaceHighlight cursor-pointer group">
+                                <span class="text-sm text-gray-300 group-hover:text-green-400 transition">Administration</span>
+                                <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted">5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        //  CONTENT AREA: WRITE YOUR POSTS HERE
+        // ==========================================
+        const blogPosts = [
+            {
+                id: 1,
+                title: "Understanding Parameter Sniffing",
+                category: "performance",
+                categoryColor: "primary", // primary (cyan), secondary (indigo), green-400, etc.
+                date: "Nov 28, 2025",
+                readTime: "10 min",
+                author: "John Doe",
+                summary: "When SQL Server compiles a stored procedure, it creates an execution plan based on the parameters provided at that specific moment. This is the 'Goldilocks' problem.",
+                // Below is the actual Markdown content
+                content: `
+# The Parameter Sniffing Problem
+
+Parameter sniffing is a feature, not a bug. It refers to the process where SQL Server's query optimizer "sniffs" the parameter values during compilation.
+
+### Why is it bad?
+The issue arises when the first parameter used to compile the plan is not representative of the typical workload. 
+
+For example:
+1. You compile with \`@ID = 1\` (returns 1 row) -> **Index Seek**
+2. You run with \`@ID = 2\` (returns 1M rows) -> **Index Seek** (Should be Scan!)
+
+### Example Code
+\`\`\`sql
+CREATE PROCEDURE GetOrders (@ClientID INT)
+AS
+SELECT * FROM Orders WHERE ClientID = @ClientID;
+-- If run with ClientID=1 (returns 1 row) -> Plan A (Seek)
+-- If run with ClientID=2 (returns 1M rows) -> Plan A crashes performance
+\`\`\`
+
+### The Solution: PSP Optimization
+In SQL Server 2022, Microsoft introduced **Parameter Sensitive Plan (PSP) optimization**.
+                `
+            },
+            {
+                id: 2,
+                title: "Identify Unused Indexes Quickly",
+                category: "tsql",
+                categoryColor: "secondary",
+                date: "Nov 25, 2025",
+                readTime: "3 min",
+                author: "SysAdmin",
+                summary: "Indexes that aren't used for seeks or scans still incur overhead during inserts. Find the dead weight with this simple DMV query.",
+                content: `
+# Finding Dead Indexes
+
+Every index on your table slows down \`INSERT\`, \`UPDATE\`, and \`DELETE\` operations. If an index isn't being used for reads, it is pure overhead.
+
+Here is the query to find them:
+
+\`\`\`sql
+SELECT 
+    o.name AS ObjectName,
+    i.name AS IndexName,
+    s.user_seeks,
+    s.user_scans,
+    s.user_lookups
+FROM sys.dm_db_index_usage_stats s
+JOIN sys.indexes i ON i.object_id = s.object_id AND i.index_id = s.index_id
+JOIN sys.objects o ON i.object_id = o.object_id
+WHERE 
+    s.database_id = DB_ID()
+    AND s.user_seeks = 0
+    AND s.user_scans = 0
+    AND s.user_lookups = 0
+    AND i.type_desc = 'NONCLUSTERED';
+\`\`\`
+
+**Note:** Be careful, these stats reset when SQL Server restarts!
+                `
+            },
+            {
+                id: 3,
+                title: "Transaction Log Management",
+                category: "dba",
+                categoryColor: "green-400",
+                date: "Nov 22, 2025",
+                readTime: "15 min",
+                author: "John Doe",
+                summary: "Is your T-Log filling up? Before you shrink it, understand why it's growing. We discuss VLF fragmentation and recovery models.",
+                content: `
+# Stop Shrinking Your Logs!
+
+Transaction logs need to grow. If you shrink them, they just have to grow again, which causes **VLF Fragmentation**.
+
+### What is a VLF?
+A Virtual Log File (VLF) is a unit of internal management. Too many VLFs make recovery slow.
+
+> "The only time you should shrink a log file is if it grew due to an abnormal event that won't happen again."
+
+### Best Practices
+- Pre-grow your log files.
+- Set autogrowth to a fixed size (e.g., 512MB), not a percentage.
+                `
+            }
+        ];
+
+        // ==========================================
+        //  SYSTEM LOGIC (DO NOT EDIT BELOW)
+        // ==========================================
+
+        lucide.createIcons();
+
+        // 1. Render List on Load
+        function renderArticleList(filter = 'all') {
+            const container = document.getElementById('article-list-container');
+            container.innerHTML = ''; // Clear current
+
+            const filteredPosts = blogPosts.filter(post => filter === 'all' || post.category === filter);
+
+            if (filteredPosts.length === 0) {
+                container.innerHTML = `<div class="text-center text-textMuted py-10">No articles found in this category.</div>`;
+                return;
+            }
+
+            filteredPosts.forEach(post => {
+                // Determine color classes dynamically
+                let tagClass = '';
+                let textClass = '';
+                if (post.categoryColor === 'primary') { tagClass = 'bg-primary/10 text-primary border-primary/20'; textClass = 'group-hover:text-primary'; }
+                else if (post.categoryColor === 'secondary') { tagClass = 'bg-secondary/10 text-secondary border-secondary/20'; textClass = 'group-hover:text-secondary'; }
+                else { tagClass = 'bg-green-500/10 text-green-400 border-green-500/20'; textClass = 'group-hover:text-green-400'; }
+
+                const html = `
+                    <article class="article-card group bg-surface rounded-xl border border-surfaceHighlight overflow-hidden hover:border-gray-500 transition duration-300">
+                        <div class="p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${tagClass} uppercase">${post.category}</span>
+                                <span class="text-textMuted text-xs font-mono">${post.readTime} read</span>
+                            </div>
+                            <h2 class="text-2xl font-bold text-white mb-3 ${textClass} transition cursor-pointer" onclick="openArticle(${post.id})">
+                                ${post.title}
+                            </h2>
+                            <p class="text-textMuted mb-6 leading-relaxed">
+                                ${post.summary}
+                            </p>
+                            <div class="flex items-center justify-between border-t border-surfaceHighlight pt-4">
+                                <div class="fl6ex items-center gap-3">
+                                    <div class="h-8 w-8 rounded-full bg-surfaceHighlight flex items-center justify-center text-white font-bold text-xs">${post.author.charAt(0)}</div>
+                                    <span class="text-sm font-medium text-textMuted">${post.author} • ${post.date}</span>
+                                </div>
+                                <button onclick="openArticle(${post.id})" class="text-white text-sm font-bold flex items-center hover:underline">
+                                    Read Article <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                `;
+                container.innerHTML += html;
+            });
+            lucide.createIcons();
+        }
+
+        // 2. Open Article View
+        function openArticle(id) {
+            const post = blogPosts.find(p => p.id === id);
+            if (!post) return;
+
+            // Render Markdown Content using Marked.js
+            const renderedContent = marked.parse(post.content);
+
+            const contentContainer = document.getElementById('article-content-container');
+            
+            // Define colors for header
+            let tagClass = '';
+            if (post.categoryColor === 'primary') tagClass = 'bg-primary/10 text-primary border-primary/20';
+            else if (post.categoryColor === 'secondary') tagClass = 'bg-secondary/10 text-secondary border-secondary/20';
+            else tagClass = 'bg-green-500/10 text-green-400 border-green-500/20';
+
+            contentContainer.innerHTML = `
+                <div class="bg-surface rounded-xl border border-surfaceHighlight p-8">
+                    <div class="flex flex-wrap gap-4 mb-6">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold border ${tagClass} uppercase">${post.category}</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-6 leading-tight">
+                        ${post.title}
+                    </h1>
+                    <div class="flex items-center gap-4 text-textMuted text-sm border-b border-surfaceHighlight pb-8 mb-8">
+                        <div class="flex items-center gap-2">
+                            <div class="h-8 w-8 rounded-full bg-surfaceHighlight flex items-center justify-center text-white font-bold text-xs">${post.author.charAt(0)}</div>
+                            <span>${post.author}</span>
+                        </div>
+                        <span>•</span>
+                        <span>${post.date}</span>
+                        <span>•</span>
+                        <span>${post.readTime}</span>
+                    </div>
+
+                    <!-- INJECTED MARKDOWN CONTENT -->
+                    <div class="prose prose-invert max-w-none">
+                        ${renderedContent}
+                    </div>
+                </div>
+            `;
+
+            // Switch Views
+            document.getElementById('home-view').classList.add('hidden-view');
+            document.getElementById('article-view').classList.remove('hidden-view');
+            document.getElementById('article-view').classList.add('fade-in');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            lucide.createIcons();
+        }
+
+        // 3. Navigation
+        function showHome() {
+            document.getElementById('article-view').classList.add('hidden-view');
+            document.getElementById('home-view').classList.remove('hidden-view');
+            document.getElementById('home-view').classList.add('fade-in');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function filterCategory(category) {
+            showHome();
+            // Reset buttons
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('bg-surfaceHighlight', 'text-white');
+                b.classList.add('text-textMuted');
+            });
+            // Set active
+            const btn = event.target.closest('button') || event.target;
+            btn.classList.add('bg-surfaceHighlight', 'text-white');
+            btn.classList.remove('text-textMuted');
+            
+            renderArticleList(category);
+        }
+
+        // Initialize
+        renderArticleList();
+
+    </script>
+</body>
+</html>
