@@ -1,5 +1,40 @@
 const blogPosts = [
     {
+        id: 7,
+        title: "SQL Server 2022: Day 1 Configuration Checklist",
+        category: "dba",
+        categoryColor: "green-400",
+        date: "Dec 01, 2025",
+        readTime: "5 min",
+        author: "Billy Gousetis",
+        summary: "SQL Server 2022 is a beast, but out of the box, it’s sleeping. Here is my 'Day 1' configuration checklist to unlock 40% more performance immediately.",
+        content: `
+# SQL Server 2022 is a Beast. Wake it up.
+
+We often talk about the new features in SQL Server 2022 - Intelligent Query Processing, Parameter Sensitive Plan optimization, etc. But if you install it with "Next, Next, Finish" defaults, you are leaving **40% of the performance on the table**.
+
+Here is my "Day 1" configuration checklist for any new High-Performance instance.
+
+### OS Level
+1. **Power Plan:** "High Performance." Stop letting Windows throttle your CPU voltage through the Balanced Plan.
+2. **IFI (Instant File Initialization):** Enabled. Don't make SQL write zeros to disk every time a file grows.
+3. **Allocation Unit:** 64KB. Align your disk with SQL Server Extents (THIS SHOULD BE DONE BEFORE INSTALLING THE NEW INSTANCE).
+
+### Engine Level
+4. **Max Server Memory:** Cap it! Leave 4GB+ for the OS. If you leave this default, the OS will eventually panic and paging will kill your performance.
+5. **MaxDOP:** Set to 8 (or match your NUMA node). The default (0) uses all cores for one query, which creates massive scheduling contention.
+6. **Cost Threshold for Parallelism:** Bump it to 50. The default value (5) is from the 1990s.
+
+### Version 2022 Specifics
+* **Compat Level:** 160. Required to unlock the new magic.
+* **Query Store:** It's on by default now (finally!), but change Capture Mode to **AUTO**. Don't let "ALL" fill your drive with trivial \`SELECT 1\` queries.
+
+> **HINT:** Do your own research, and never trust a random guy on the internet. Testing before pushing to production is ESSENTIAL!
+
+*(Stay tuned for my detailed Version 2025 hands-on post... once I finally get access to the bits!)*
+        `
+    },
+    {
         id: 6,
         title: "Advanced Performance Tuning: Beyond Indexes",
         category: "performance",
