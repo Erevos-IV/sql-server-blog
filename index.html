@@ -91,7 +91,7 @@
                         <input type="text" placeholder="Search..." oninput="performSearch(this.value)" class="bg-surfaceHighlight text-sm rounded-full pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary w-40 focus:w-64 transition-all duration-300 placeholder-textMuted">
                     </div>
                     
-                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v2.7</div>
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v2.8</div>
                     <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
                 </div>
             </div>
@@ -226,15 +226,20 @@
                             <p class="text-textMuted mb-6 leading-relaxed">
                                 ${post.summary}
                             </p>
+                            
+                            <!-- UPDATED AUTHOR SECTION WITH NEW ICON -->
                             <div class="flex items-center justify-between border-t border-surfaceHighlight pt-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="h-8 w-8 rounded-full bg-surfaceHighlight flex items-center justify-center text-white font-bold text-xs">${post.author.charAt(0)}</div>
+                                    <div class="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-background">
+                                        <i data-lucide="terminal" class="w-4 h-4"></i>
+                                    </div>
                                     <span class="text-sm font-medium text-textMuted">${post.author} • ${post.date}</span>
                                 </div>
                                 <button onclick="openArticle(${post.id})" class="text-white text-sm font-bold flex items-center hover:underline">
                                     Read Article <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
                                 </button>
                             </div>
+
                         </div>
                     </article>
                 `;
@@ -316,10 +321,14 @@
                     </div>
                     <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-6 leading-tight">
                         ${post.title}
-                    </h1>
+                    </h1>A
+                    
+                    <!-- UPDATED ARTICLE HEADER AUTHOR SECTION -->
                     <div class="flex items-center gap-4 text-textMuted text-sm border-b border-surfaceHighlight pb-8 mb-8">
                         <div class="flex items-center gap-2">
-                            <div class="h-8 w-8 rounded-full bg-surfaceHighlight flex items-center justify-center text-white font-bold text-xs">${post.author.charAt(0)}</div>
+                             <div class="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-background">
+                                <i data-lucide="terminal" class="w-4 h-4"></i>
+                            </div>
                             <span>${post.author}</span>
                         </div>
                         <span>•</span>
