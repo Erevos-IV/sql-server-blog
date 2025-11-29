@@ -4,20 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- 1. The Title Text in the Tab -->
     <title>SQL Server Insights</title>
 
-    <!-- 2. The Icon (Favicon) in the Tab -->
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2322d3ee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='12' cy='5' rx='9' ry='3'/%3E%3Cpath d='M21 12c0 1.66-4 3-9 3s-9-1.34-9-3'/%3E%3Cpath d='M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5'/%3E%3C/svg%3E">
 
+    <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Marked.js for converting Markdown to HTML -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- Tailwind Typography for nice Markdown styling -->
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     
-    <!-- IMPORTANT: This loads your real articles from the other file -->
+    <!-- FEATURE: Prism.js for Professional Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    
+    <!-- Load Articles -->
     <script src="posts.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -46,19 +49,31 @@
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* Custom Markdown Styling (Prose overrides) */
-        .prose h1, .prose h2, .prose h3 { color: #f1f5f9; font-weight: 800; }
+        /* Prose Overrides */
+        .prose h1, .prose h2, .prose h3 { color: #f1f5f9; font-weight: 800; scroll-margin-top: 100px; }
         .prose p { color: #cbd5e1; }
         .prose strong { color: #22d3ee; }
         .prose ul { color: #cbd5e1; }
         .prose li::marker { color: #818cf8; }
         .prose code { color: #f472b6; background: #334155; padding: 2px 4px; border-radius: 4px; font-weight: normal; }
-        .prose pre { background: #0d1117 !important; border: 1px solid #334155; }
-        .prose pre code { background: transparent; padding: 0; color: #e2e8f0; }
+        /* Prism overrides the pre background, so we handle it there */
         .prose blockquote { border-left-color: #22d3ee; color: #94a3b8; font-style: italic; }
         .prose a { color: #818cf8; text-decoration: none; }
         .prose a:hover { text-decoration: underline; }
-        
+
+        /* Copy Button Styling */
+        .code-wrapper { position: relative; margin-bottom: 1.5rem; }
+        .copy-btn {
+            position: absolute; top: 0.5rem; right: 0.5rem;
+            background: #334155; color: #94a3b8;
+            border-radius: 0.25rem; padding: 0.25rem 0.5rem;
+            font-size: 0.75rem; font-family: sans-serif;
+            opacity: 0; transition: opacity 0.2s; cursor: pointer;
+            border: 1px solid #475569;
+        }
+        .code-wrapper:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { background: #475569; color: white; }
+
         /* Transitions */
         .fade-in { animation: fadeIn 0.3s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -90,8 +105,7 @@
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
                         <input type="text" placeholder="Search..." oninput="performSearch(this.value)" class="bg-surfaceHighlight text-sm rounded-full pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary w-40 focus:w-64 transition-all duration-300 placeholder-textMuted">
                     </div>
-                    
-                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v2.8</div>
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v3.0</div>
                     <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
                 </div>
             </div>
@@ -117,8 +131,6 @@
                             No fluff. Just deep internals, query tuning, and T-SQL patterns for the modern database professional.
                         </p>
                     </div>
-
-                    <!-- Article List Container (Populated by JS) -->
                     <div id="article-list-container" class="space-y-6"></div>
                 </div>
 
@@ -127,10 +139,7 @@
                     <button onclick="showHome()" class="text-textMuted hover:text-primary flex items-center gap-2 mb-6 transition">
                         <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Articles
                     </button>
-
-                    <!-- Article Content Container (Populated by JS) -->
                     <div id="article-content-container"></div>
-
                 </div>
             </main>
 
@@ -152,8 +161,6 @@
                     <p class="text-sm text-textMuted mb-6">
                         3 years of experience in Banking & Capital Markets. Specializing in Performance Tuning, Maintenance, Automation.
                     </p>
-                    
-                    <!-- NEW: Sidebar Buttons -->
                     <div class="space-y-3">
                         <a href="https://www.linkedin.com/in/vasileiosgoysetis-7378101b9/" target="_blank" class="block w-full text-center py-2 px-4 rounded-md bg-surfaceHighlight hover:bg-surfaceHighlight/80 border border-slate-600 text-sm font-medium text-white transition flex items-center justify-center gap-2">
                             <i data-lucide="linkedin" class="w-4 h-4"></i> LinkedIn Profile
@@ -165,7 +172,6 @@
                             <i data-lucide="megaphone" class="w-4 h-4"></i> SQL Server 2025 GA
                         </a>
                     </div>
-
                     <div class="mt-8 pt-6 border-t border-surfaceHighlight">
                         <h4 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-4">Categories</h4>
                         <div class="space-y-2">
@@ -189,16 +195,19 @@
     </div>
 
     <script>
-        // ==========================================
-        //  SYSTEM LOGIC
-        // ==========================================
-
         lucide.createIcons();
 
-        // Helper: Renders an array of posts to the container
+        // --- FEATURE: Dynamic Read Time ---
+        function calculateReadTime(content) {
+            const words = content.trim().split(/\s+/).length;
+            const time = Math.ceil(words / 200); // 200 words per minute
+            return `${time} min`;
+        }
+
+        // --- Helper: Render List ---
         function renderPosts(posts) {
             const container = document.getElementById('article-list-container');
-            container.innerHTML = ''; // Clear current
+            container.innerHTML = ''; 
 
             if (posts.length === 0) {
                 container.innerHTML = `<div class="text-center text-textMuted py-10 italic">No articles found.</div>`;
@@ -206,7 +215,9 @@
             }
 
             posts.forEach(post => {
-                // Determine color classes dynamically
+                // Calculate time dynamically
+                const dynReadTime = calculateReadTime(post.content);
+
                 let tagClass = '';
                 let textClass = '';
                 if (post.categoryColor === 'primary') { tagClass = 'bg-primary/10 text-primary border-primary/20'; textClass = 'group-hover:text-primary'; }
@@ -218,7 +229,7 @@
                         <div class="p-6">
                             <div class="flex items-center gap-3 mb-4">
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${tagClass} uppercase">${post.category}</span>
-                                <span class="text-textMuted text-xs font-mono">${post.readTime} read</span>
+                                <span class="text-textMuted text-xs font-mono">${dynReadTime} read</span>
                             </div>
                             <h2 class="text-2xl font-bold text-white mb-3 ${textClass} transition cursor-pointer" onclick="openArticle(${post.id})">
                                 ${post.title}
@@ -226,8 +237,6 @@
                             <p class="text-textMuted mb-6 leading-relaxed">
                                 ${post.summary}
                             </p>
-                            
-                            <!-- UPDATED AUTHOR SECTION WITH NEW ICON -->
                             <div class="flex items-center justify-between border-t border-surfaceHighlight pt-4">
                                 <div class="flex items-center gap-3">
                                     <div class="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-background">
@@ -239,7 +248,6 @@
                                     Read Article <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
                                 </button>
                             </div>
-
                         </div>
                     </article>
                 `;
@@ -248,67 +256,45 @@
             lucide.createIcons();
         }
 
-        // 1. Render List by Category (Default)
+        // --- Main Functions ---
         function renderArticleList(filter = 'all') {
-            // Check if blogPosts exists (loaded from posts.js)
             if (typeof blogPosts === 'undefined') {
-                document.getElementById('article-list-container').innerHTML = `<div class="text-center text-red-400 py-10">
-                    <p class="font-bold text-lg mb-2">Error: Articles not found.</p>
-                    <p class="text-sm">Make sure <code>posts.js</code> is in the same folder as <code>index.html</code>.</p>
-                </div>`;
+                document.getElementById('article-list-container').innerHTML = `<div class="text-center text-red-400">Error loading posts.js</div>`;
                 return;
             }
-
-            // Update Sidebar Counts
             updateCounts();
-
-            // Filter logic
             const filteredPosts = blogPosts.filter(post => filter === 'all' || post.category === filter);
             renderPosts(filteredPosts);
         }
 
-        // 2. Perform Search
         function performSearch(query) {
-            showHome(); // Switch to list view
-            
-            if (!query) {
-                renderArticleList('all'); // Reset to showing all if empty
-                return;
-            }
-
+            showHome();
+            if (!query) { renderArticleList('all'); return; }
             const lowerQuery = query.toLowerCase();
             const results = blogPosts.filter(post => 
                 post.title.toLowerCase().includes(lowerQuery) || 
                 post.content.toLowerCase().includes(lowerQuery)
             );
-
             renderPosts(results);
         }
 
         function updateCounts() {
             if (typeof blogPosts === 'undefined') return;
-            
-            const perfCount = blogPosts.filter(p => p.category === 'performance').length;
-            const tsqlCount = blogPosts.filter(p => p.category === 'tsql').length;
-            const dbaCount = blogPosts.filter(p => p.category === 'dba').length;
-
-            document.getElementById('count-performance').innerText = perfCount;
-            document.getElementById('count-tsql').innerText = tsqlCount;
-            document.getElementById('count-dba').innerText = dbaCount;
+            document.getElementById('count-performance').innerText = blogPosts.filter(p => p.category === 'performance').length;
+            document.getElementById('count-tsql').innerText = blogPosts.filter(p => p.category === 'tsql').length;
+            document.getElementById('count-dba').innerText = blogPosts.filter(p => p.category === 'dba').length;
         }
 
-        // 3. Open Article View
+        // --- OPEN ARTICLE (The Heavy Lifting) ---
         function openArticle(id) {
             if (typeof blogPosts === 'undefined') return;
             const post = blogPosts.find(p => p.id === id);
             if (!post) return;
 
-            // Render Markdown Content using Marked.js
+            const dynReadTime = calculateReadTime(post.content);
             const renderedContent = marked.parse(post.content);
-
             const contentContainer = document.getElementById('article-content-container');
             
-            // Define colors for header
             let tagClass = '';
             if (post.categoryColor === 'primary') tagClass = 'bg-primary/10 text-primary border-primary/20';
             else if (post.categoryColor === 'secondary') tagClass = 'bg-secondary/10 text-secondary border-secondary/20';
@@ -316,14 +302,13 @@
 
             contentContainer.innerHTML = `
                 <div class="bg-surface rounded-xl border border-surfaceHighlight p-8">
+                    <!-- Header -->
                     <div class="flex flex-wrap gap-4 mb-6">
                         <span class="px-3 py-1 rounded-full text-xs font-bold border ${tagClass} uppercase">${post.category}</span>
                     </div>
                     <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-6 leading-tight">
                         ${post.title}
-                    </h1>A
-                    
-                    <!-- UPDATED ARTICLE HEADER AUTHOR SECTION -->
+                    </h1>
                     <div class="flex items-center gap-4 text-textMuted text-sm border-b border-surfaceHighlight pb-8 mb-8">
                         <div class="flex items-center gap-2">
                              <div class="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-background">
@@ -334,15 +319,82 @@
                         <span>•</span>
                         <span>${post.date}</span>
                         <span>•</span>
-                        <span>${post.readTime}</span>
+                        <span>${dynReadTime} read</span>
                     </div>
 
-                    <!-- INJECTED MARKDOWN CONTENT -->
-                    <div class="prose prose-invert max-w-none">
+                    <!-- FEATURE: Table of Contents Container -->
+                    <div id="toc-container" class="mb-8 p-4 bg-background border border-surfaceHighlight rounded-lg hidden">
+                        <p class="text-sm font-bold text-white mb-2 uppercase tracking-wide">Table of Contents</p>
+                        <ul id="toc-list" class="space-y-1 text-sm text-textMuted"></ul>
+                    </div>
+
+                    <!-- Article Body -->
+                    <div id="article-body" class="prose prose-invert max-w-none">
                         ${renderedContent}
+                    </div>
+
+                    <!-- FEATURE: Social Share -->
+                    <div class="mt-12 pt-8 border-t border-surfaceHighlight">
+                        <p class="text-sm font-bold text-white mb-4">Share this article</p>
+                        <div class="flex gap-2">
+                             <a href="mailto:?subject=${encodeURIComponent(post.title)}&body=Check out this article: ${window.location.href}" class="bg-surfaceHighlight hover:bg-slate-600 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition">
+                                <i data-lucide="mail" class="w-4 h-4"></i> Email
+                             </a>
+                             <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(window.location.href)}" target="_blank" class="bg-[#1DA1F2]/20 hover:bg-[#1DA1F2]/30 text-[#1DA1F2] border border-[#1DA1F2]/30 px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition">
+                                <i data-lucide="twitter" class="w-4 h-4"></i> Twitter
+                             </a>
+                             <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}" target="_blank" class="bg-[#0077b5]/20 hover:bg-[#0077b5]/30 text-[#0077b5] border border-[#0077b5]/30 px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition">
+                                <i data-lucide="linkedin" class="w-4 h-4"></i> LinkedIn
+                             </a>
+                        </div>
                     </div>
                 </div>
             `;
+
+            // --- FEATURE: Post-Processing Logic ---
+            
+            // 1. Highlight Code with Prism
+            Prism.highlightAllUnder(contentContainer);
+
+            // 2. Generate TOC
+            const articleBody = document.getElementById('article-body');
+            const headers = articleBody.querySelectorAll('h2, h3');
+            const tocContainer = document.getElementById('toc-container');
+            const tocList = document.getElementById('toc-list');
+            
+            if (headers.length > 0) {
+                tocContainer.classList.remove('hidden');
+                headers.forEach((header, index) => {
+                    const id = 'header-' + index;
+                    header.id = id;
+                    const li = document.createElement('li');
+                    li.innerHTML = `<a href="#${id}" class="hover:text-primary transition block py-1" onclick="document.getElementById('${id}').scrollIntoView({behavior: 'smooth'})">${header.innerText}</a>`;
+                    if(header.tagName === 'H3') li.classList.add('pl-4');
+                    tocList.appendChild(li);
+                });
+            }
+
+            // 3. Add Copy Buttons to Code Blocks
+            const codeBlocks = articleBody.querySelectorAll('pre');
+            codeBlocks.forEach(pre => {
+                // Wrapper for positioning
+                const wrapper = document.createElement('div');
+                wrapper.className = 'code-wrapper';
+                pre.parentNode.insertBefore(wrapper, pre);
+                wrapper.appendChild(pre);
+
+                // Button
+                const btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerText = 'Copy';
+                btn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(pre.innerText).then(() => {
+                        btn.innerText = 'Copied!';
+                        setTimeout(() => btn.innerText = 'Copy', 2000);
+                    });
+                });
+                wrapper.appendChild(btn);
+            });
 
             // Switch Views
             document.getElementById('home-view').classList.add('hidden-view');
@@ -353,7 +405,6 @@
             lucide.createIcons();
         }
 
-        // 4. Navigation
         function showHome() {
             document.getElementById('article-view').classList.add('hidden-view');
             document.getElementById('home-view').classList.remove('hidden-view');
@@ -363,22 +414,17 @@
 
         function filterCategory(category) {
             showHome();
-            // Reset buttons
             document.querySelectorAll('.nav-btn').forEach(b => {
                 b.classList.remove('bg-surfaceHighlight', 'text-white');
                 b.classList.add('text-textMuted');
             });
-            // Set active
             const btn = event.target.closest('button') || event.target;
             btn.classList.add('bg-surfaceHighlight', 'text-white');
             btn.classList.remove('text-textMuted');
-            
             renderArticleList(category);
         }
 
-        // Initialize
         renderArticleList();
-
     </script>
 </body>
 </html>
