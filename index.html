@@ -15,11 +15,6 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     
-    <!-- FEATURE: Prism.js for Professional Syntax Highlighting -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
-    
     <!-- Load Articles -->
     <script src="posts.js"></script>
 
@@ -56,7 +51,8 @@
         .prose ul { color: #cbd5e1; }
         .prose li::marker { color: #818cf8; }
         .prose code { color: #f472b6; background: #334155; padding: 2px 4px; border-radius: 4px; font-weight: normal; }
-        /* Prism overrides the pre background, so we handle it there */
+        .prose pre { background: #0d1117 !important; border: 1px solid #334155; color: #e2e8f0; } /* Plain styling */
+        .prose pre code { background: transparent; padding: 0; color: inherit; }
         .prose blockquote { border-left-color: #22d3ee; color: #94a3b8; font-style: italic; }
         .prose a { color: #818cf8; text-decoration: none; }
         .prose a:hover { text-decoration: underline; }
@@ -127,7 +123,7 @@
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
                         <input type="text" placeholder="Search..." oninput="performSearch(this.value)" class="bg-surfaceHighlight text-sm rounded-full pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary w-40 focus:w-64 transition-all duration-300 placeholder-textMuted">
                     </div>
-                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v3.0</div>
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v3.1</div>
                     <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
                 </div>
             </div>
@@ -375,10 +371,7 @@
 
             // --- FEATURE: Post-Processing Logic ---
             
-            // 1. Highlight Code with Prism
-            Prism.highlightAllUnder(contentContainer);
-
-            // 2. Generate TOC
+            // 1. Generate TOC
             const articleBody = document.getElementById('article-body');
             const headers = articleBody.querySelectorAll('h2, h3');
             const tocContainer = document.getElementById('toc-container');
@@ -396,7 +389,7 @@
                 });
             }
 
-            // 3. Add Copy Buttons to Code Blocks
+            // 2. Add Copy Buttons to Code Blocks
             const codeBlocks = articleBody.querySelectorAll('pre');
             codeBlocks.forEach(pre => {
                 // Wrapper for positioning
