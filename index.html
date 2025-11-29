@@ -57,7 +57,7 @@
         .prose a { color: #818cf8; text-decoration: none; }
         .prose a:hover { text-decoration: underline; }
 
-        /* Copy Button Styling - VS Code Style */
+        /* Copy Button Styling */
         .code-wrapper { position: relative; }
         .copy-btn {
             position: absolute;
@@ -66,7 +66,7 @@
             padding: 0.5rem;
             border-radius: 0.375rem;
             background-color: transparent;
-            color: #94a3b8; /* textMuted */
+            color: #94a3b8;
             transition: all 0.2s;
             opacity: 0;
             border: 1px solid transparent;
@@ -74,18 +74,25 @@
             align-items: center;
             justify-content: center;
         }
-        .code-wrapper:hover .copy-btn {
-            opacity: 1;
-        }
+        .code-wrapper:hover .copy-btn { opacity: 1; }
         .copy-btn:hover {
-            background-color: #334155; /* surfaceHighlight */
-            color: #f1f5f9; /* textMain */
+            background-color: #334155;
+            color: #f1f5f9;
             border-color: #475569;
         }
         .copy-btn-success {
-            color: #22d3ee !important; /* primary */
+            color: #22d3ee !important;
             border-color: #22d3ee !important;
         }
+
+        /* Tag Cloud Styling */
+        .tag-pill {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .tag-pill:hover { transform: translateY(-2px); }
+        .tag-active { border-color: currentColor; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
 
         /* Transitions */
         .fade-in { animation: fadeIn 0.3s ease-out forwards; }
@@ -93,12 +100,13 @@
         .hidden-view { display: none; }
 
         /* Remove text selection highlight */
-        ::selection {
-            background: transparent;
-        }
+        ::selection { background: transparent; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
+
+    <!-- FEATURE: Scroll Progress Bar -->
+    <div id="reading-progress" class="fixed top-0 left-0 h-1 bg-primary z-[100] w-0 transition-all duration-75 ease-out shadow-[0_0_10px_rgba(34,211,238,0.5)]"></div>
 
     <!-- Navigation -->
     <nav class="bg-surface border-b border-surfaceHighlight sticky top-0 z-50 backdrop-blur-md bg-opacity-90">
@@ -109,12 +117,9 @@
                         <i data-lucide="database" class="w-8 h-8 text-primary group-hover:rotate-12 transition-transform"></i>
                         <span class="font-extrabold text-xl tracking-tight text-white">SQL Server <span class="text-primary">Insights</span></span>
                     </div>
-                    <!-- Desktop Nav -->
+                    <!-- Desktop Nav (Simple Links) -->
                     <div class="hidden sm:ml-8 sm:flex sm:space-x-4">
-                        <button onclick="filterCategory('all')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-white bg-surfaceHighlight">Latest</button>
-                        <button onclick="filterCategory('performance')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">Performance</button>
-                        <button onclick="filterCategory('tsql')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">T-SQL</button>
-                        <button onclick="filterCategory('dba')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">DBA Life</button>
+                        <button onclick="filterCategory('all')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-white hover:text-primary transition">Latest</button>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
@@ -123,7 +128,7 @@
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
                         <input type="text" placeholder="Search..." oninput="performSearch(this.value)" class="bg-surfaceHighlight text-sm rounded-full pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary w-40 focus:w-64 transition-all duration-300 placeholder-textMuted">
                     </div>
-                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v3.1</div>
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v3.3</div>
                     <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
                 </div>
             </div>
@@ -190,21 +195,15 @@
                             <i data-lucide="megaphone" class="w-4 h-4"></i> SQL Server 2025 GA
                         </a>
                     </div>
+                    
+                    <!-- FEATURE: Tag Cloud Widget -->
                     <div class="mt-8 pt-6 border-t border-surfaceHighlight">
-                        <h4 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-4">Categories</h4>
-                        <div class="space-y-2">
-                            <div onclick="filterCategory('performance')" class="flex justify-between items-center p-2 rounded hover:bg-surfaceHighlight cursor-pointer group">
-                                <span class="text-sm text-gray-300 group-hover:text-primary transition">Performance</span>
-                                <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted" id="count-performance">0</span>
-                            </div>
-                            <div onclick="filterCategory('tsql')" class="flex justify-between items-center p-2 rounded hover:bg-surfaceHighlight cursor-pointer group">
-                                <span class="text-sm text-gray-300 group-hover:text-secondary transition">T-SQL</span>
-                                <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted" id="count-tsql">0</span>
-                            </div>
-                            <div onclick="filterCategory('dba')" class="flex justify-between items-center p-2 rounded hover:bg-surfaceHighlight cursor-pointer group">
-                                <span class="text-sm text-gray-300 group-hover:text-green-400 transition">Administration</span>
-                                <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted" id="count-dba">0</span>
-                            </div>
+                        <h4 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <i data-lucide="tag" class="w-3 h-3"></i> Topic Cloud
+                        </h4>
+                        <!-- Container for dynamic tags -->
+                        <div id="tag-cloud-container" class="flex flex-wrap gap-2">
+                            <!-- Tags injected by JS -->
                         </div>
                     </div>
                 </div>
@@ -215,10 +214,18 @@
     <script>
         lucide.createIcons();
 
+        // --- FEATURE: Scroll Progress Logic ---
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById("reading-progress").style.width = scrolled + "%";
+        });
+
         // --- FEATURE: Dynamic Read Time ---
         function calculateReadTime(content) {
             const words = content.trim().split(/\s+/).length;
-            const time = Math.ceil(words / 200); // 200 words per minute
+            const time = Math.ceil(words / 200);
             return `${time} min`;
         }
 
@@ -233,23 +240,17 @@
             }
 
             posts.forEach(post => {
-                // Calculate time dynamically
                 const dynReadTime = calculateReadTime(post.content);
-
-                let tagClass = '';
-                let textClass = '';
-                if (post.categoryColor === 'primary') { tagClass = 'bg-primary/10 text-primary border-primary/20'; textClass = 'group-hover:text-primary'; }
-                else if (post.categoryColor === 'secondary') { tagClass = 'bg-secondary/10 text-secondary border-secondary/20'; textClass = 'group-hover:text-secondary'; }
-                else { tagClass = 'bg-green-500/10 text-green-400 border-green-500/20'; textClass = 'group-hover:text-green-400'; }
+                let tagClass = getTagStyle(post.categoryColor);
 
                 const html = `
                     <article class="article-card group bg-surface rounded-xl border border-surfaceHighlight overflow-hidden hover:border-gray-500 transition duration-300">
                         <div class="p-6">
                             <div class="flex items-center gap-3 mb-4">
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${tagClass} uppercase">${post.category}</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border uppercase ${tagClass}">${post.category}</span>
                                 <span class="text-textMuted text-xs font-mono">${dynReadTime} read</span>
                             </div>
-                            <h2 class="text-2xl font-bold text-white mb-3 ${textClass} transition cursor-pointer" onclick="openArticle(${post.id})">
+                            <h2 class="text-2xl font-bold text-white mb-3 hover:text-primary transition cursor-pointer" onclick="openArticle(${post.id})">
                                 ${post.title}
                             </h2>
                             <p class="text-textMuted mb-6 leading-relaxed">
@@ -274,13 +275,72 @@
             lucide.createIcons();
         }
 
+        // --- FEATURE: Dynamic Tag Cloud Render ---
+        function renderTagCloud(activeCategory = 'all') {
+            if (typeof blogPosts === 'undefined') return;
+
+            const container = document.getElementById('tag-cloud-container');
+            container.innerHTML = ''; // Clear
+
+            // 1. Calculate Counts
+            const categoryCounts = {};
+            const categoryColors = {};
+            
+            blogPosts.forEach(post => {
+                categoryCounts[post.category] = (categoryCounts[post.category] || 0) + 1;
+                categoryColors[post.category] = post.categoryColor; // Store color mapping
+            });
+
+            // 2. Render "All" Tag
+            const allActive = activeCategory === 'all' ? 'bg-surfaceHighlight border-white text-white' : 'bg-surfaceHighlight border-transparent text-textMuted hover:text-white hover:border-slate-500';
+            container.innerHTML += `
+                <div onclick="filterCategory('all')" class="tag-pill rounded-full px-3 py-1 text-xs font-bold border ${allActive}">
+                    All
+                </div>
+            `;
+
+            // 3. Render Category Tags
+            Object.keys(categoryCounts).forEach(cat => {
+                const count = categoryCounts[cat];
+                const colorKey = categoryColors[cat];
+                let styleClass = '';
+
+                // Active vs Inactive Styling logic
+                if (activeCategory === cat) {
+                    // Active state: Solid color background
+                    if (colorKey === 'primary') styleClass = 'bg-primary text-background font-bold border-primary';
+                    else if (colorKey === 'secondary') styleClass = 'bg-secondary text-white font-bold border-secondary';
+                    else styleClass = 'bg-green-500 text-white font-bold border-green-500';
+                } else {
+                    // Inactive state: Subtle background + colored text
+                    if (colorKey === 'primary') styleClass = 'bg-primary/10 text-primary border-transparent hover:border-primary';
+                    else if (colorKey === 'secondary') styleClass = 'bg-secondary/10 text-secondary border-transparent hover:border-secondary';
+                    else styleClass = 'bg-green-500/10 text-green-400 border-transparent hover:border-green-500';
+                }
+
+                container.innerHTML += `
+                    <div onclick="filterCategory('${cat}')" class="tag-pill rounded-full px-3 py-1 text-xs font-medium border flex items-center gap-2 ${styleClass}">
+                        ${cat.toUpperCase()} 
+                        <span class="opacity-60 text-[10px]">${count}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // --- Helper: Get Style String ---
+        function getTagStyle(colorKey) {
+            if (colorKey === 'primary') return 'bg-primary/10 text-primary border-primary/20';
+            if (colorKey === 'secondary') return 'bg-secondary/10 text-secondary border-secondary/20';
+            return 'bg-green-500/10 text-green-400 border-green-500/20';
+        }
+
         // --- Main Functions ---
         function renderArticleList(filter = 'all') {
             if (typeof blogPosts === 'undefined') {
                 document.getElementById('article-list-container').innerHTML = `<div class="text-center text-red-400">Error loading posts.js</div>`;
                 return;
             }
-            updateCounts();
+            renderTagCloud(filter); // Re-render cloud with active state
             const filteredPosts = blogPosts.filter(post => filter === 'all' || post.category === filter);
             renderPosts(filteredPosts);
         }
@@ -296,14 +356,6 @@
             renderPosts(results);
         }
 
-        function updateCounts() {
-            if (typeof blogPosts === 'undefined') return;
-            document.getElementById('count-performance').innerText = blogPosts.filter(p => p.category === 'performance').length;
-            document.getElementById('count-tsql').innerText = blogPosts.filter(p => p.category === 'tsql').length;
-            document.getElementById('count-dba').innerText = blogPosts.filter(p => p.category === 'dba').length;
-        }
-
-        // --- OPEN ARTICLE (The Heavy Lifting) ---
         function openArticle(id) {
             if (typeof blogPosts === 'undefined') return;
             const post = blogPosts.find(p => p.id === id);
@@ -312,17 +364,13 @@
             const dynReadTime = calculateReadTime(post.content);
             const renderedContent = marked.parse(post.content);
             const contentContainer = document.getElementById('article-content-container');
-            
-            let tagClass = '';
-            if (post.categoryColor === 'primary') tagClass = 'bg-primary/10 text-primary border-primary/20';
-            else if (post.categoryColor === 'secondary') tagClass = 'bg-secondary/10 text-secondary border-secondary/20';
-            else tagClass = 'bg-green-500/10 text-green-400 border-green-500/20';
+            const tagClass = getTagStyle(post.categoryColor);
 
             contentContainer.innerHTML = `
                 <div class="bg-surface rounded-xl border border-surfaceHighlight p-8">
                     <!-- Header -->
                     <div class="flex flex-wrap gap-4 mb-6">
-                        <span class="px-3 py-1 rounded-full text-xs font-bold border ${tagClass} uppercase">${post.category}</span>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold border uppercase ${tagClass}">${post.category}</span>
                     </div>
                     <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-6 leading-tight">
                         ${post.title}
@@ -340,7 +388,7 @@
                         <span>${dynReadTime} read</span>
                     </div>
 
-                    <!-- FEATURE: Table of Contents Container -->
+                    <!-- Table of Contents -->
                     <div id="toc-container" class="mb-8 p-4 bg-background border border-surfaceHighlight rounded-lg hidden">
                         <p class="text-sm font-bold text-white mb-2 uppercase tracking-wide">Table of Contents</p>
                         <ul id="toc-list" class="space-y-1 text-sm text-textMuted"></ul>
@@ -351,7 +399,7 @@
                         ${renderedContent}
                     </div>
 
-                    <!-- FEATURE: Social Share -->
+                    <!-- Social Share -->
                     <div class="mt-12 pt-8 border-t border-surfaceHighlight">
                         <p class="text-sm font-bold text-white mb-4">Share this article</p>
                         <div class="flex gap-2">
@@ -369,9 +417,7 @@
                 </div>
             `;
 
-            // --- FEATURE: Post-Processing Logic ---
-            
-            // 1. Generate TOC
+            // Post Processing (TOC & Copy Buttons)
             const articleBody = document.getElementById('article-body');
             const headers = articleBody.querySelectorAll('h2, h3');
             const tocContainer = document.getElementById('toc-container');
@@ -389,19 +435,16 @@
                 });
             }
 
-            // 2. Add Copy Buttons to Code Blocks
             const codeBlocks = articleBody.querySelectorAll('pre');
             codeBlocks.forEach(pre => {
-                // Wrapper for positioning
                 const wrapper = document.createElement('div');
-                wrapper.className = 'code-wrapper group/code'; // Add group for hover
+                wrapper.className = 'code-wrapper group/code';
                 pre.parentNode.insertBefore(wrapper, pre);
                 wrapper.appendChild(pre);
 
-                // Button
                 const btn = document.createElement('button');
                 btn.className = 'copy-btn';
-                btn.innerHTML = '<i data-lucide="copy" class="w-4 h-4"></i>'; // Use icon
+                btn.innerHTML = '<i data-lucide="copy" class="w-4 h-4"></i>';
                 
                 btn.addEventListener('click', () => {
                     navigator.clipboard.writeText(pre.innerText).then(() => {
@@ -410,19 +453,17 @@
                         setTimeout(() => {
                             btn.classList.remove('copy-btn-success');
                             btn.innerHTML = '<i data-lucide="copy" class="w-4 h-4"></i>';
-                            lucide.createIcons(); // Re-render icon
+                            lucide.createIcons();
                         }, 2000);
                     });
                 });
                 wrapper.appendChild(btn);
             });
 
-            // Switch Views
             document.getElementById('home-view').classList.add('hidden-view');
             document.getElementById('article-view').classList.remove('hidden-view');
             document.getElementById('article-view').classList.add('fade-in');
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            
             lucide.createIcons();
         }
 
@@ -435,13 +476,6 @@
 
         function filterCategory(category) {
             showHome();
-            document.querySelectorAll('.nav-btn').forEach(b => {
-                b.classList.remove('bg-surfaceHighlight', 'text-white');
-                b.classList.add('text-textMuted');
-            });
-            const btn = event.target.closest('button') || event.target;
-            btn.classList.add('bg-surfaceHighlight', 'text-white');
-            btn.classList.remove('text-textMuted');
             renderArticleList(category);
         }
 
