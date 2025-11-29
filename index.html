@@ -94,6 +94,7 @@
             100% { transform: translateX(-100%); }
         }
         .animate-marquee {
+            /* Changed from 25s to 45s for slower speed */
             animation: marquee 45s linear infinite; 
             display: inline-block;
             white-space: nowrap;
@@ -157,7 +158,7 @@
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
                         <input type="text" placeholder="Search..." oninput="performSearch(this.value)" class="bg-surfaceHighlight text-sm rounded-full pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary w-40 focus:w-64 transition-all duration-300 placeholder-textMuted">
                     </div>
-                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v3.9</div>
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v4.0</div>
                     <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
                 </div>
             </div>
@@ -250,6 +251,11 @@
         </div>
     </div>
 
+    <!-- FEATURE: Back to Top Button -->
+    <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-8 right-8 bg-primary text-background p-3 rounded-full shadow-lg shadow-cyan-500/50 hover:bg-cyan-300 transition-all duration-300 opacity-0 pointer-events-none z-50">
+        <i data-lucide="arrow-up" class="w-6 h-6"></i>
+    </button>
+
     <script>
         lucide.createIcons();
 
@@ -272,12 +278,24 @@
             }
         }
 
-        // --- FEATURE: Scroll Progress Logic ---
+        // --- FEATURE: Scroll Logic (Progress + Back to Top) ---
         window.addEventListener('scroll', () => {
             const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
             const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
             const scrolled = (winScroll / height) * 100;
+            
+            // Update Progress Bar
             document.getElementById("reading-progress").style.width = scrolled + "%";
+
+            // Toggle Back to Top Button
+            const backToTopBtn = document.getElementById('back-to-top');
+            if (winScroll > 300) {
+                backToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
+                backToTopBtn.classList.add('opacity-100', 'pointer-events-auto');
+            } else {
+                backToTopBtn.classList.remove('opacity-100', 'pointer-events-auto');
+                backToTopBtn.classList.add('opacity-0', 'pointer-events-none');
+            }
         });
 
         // --- FEATURE: Dynamic Read Time ---
@@ -285,6 +303,15 @@
             const words = content.trim().split(/\s+/).length;
             const time = Math.ceil(words / 200);
             return `${time} min`;
+        }
+
+        // --- FEATURE: Check for New Articles ---
+        function isNew(dateStr) {
+            const postDate = new Date(dateStr);
+            const now = new Date();
+            const diffTime = Math.abs(now - postDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays <= 14; 
         }
 
         // --- Helper: Render List ---
@@ -300,6 +327,12 @@
             posts.forEach(post => {
                 const dynReadTime = calculateReadTime(post.content);
                 let tagClass = getTagStyle(post.categoryColor);
+                
+                // NEW Badge Logic
+                let newBadge = '';
+                if (isNew(post.date)) {
+                    newBadge = `<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20 animate-pulse">NEW</span>`;
+                }
 
                 const html = `
                     <article class="article-card group bg-surface rounded-xl border border-surfaceHighlight overflow-hidden hover:border-gray-500 transition duration-300">
@@ -308,8 +341,8 @@
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border uppercase ${tagClass}">${post.category}</span>
                                 <span class="text-textMuted text-xs font-mono">${dynReadTime} read</span>
                             </div>
-                            <h2 class="text-2xl font-bold text-white mb-3 hover:text-primary transition cursor-pointer" onclick="openArticle(${post.id})">
-                                ${post.title}
+                            <h2 class="text-2xl font-bold text-white mb-3 hover:text-primary transition cursor-pointer flex items-center" onclick="openArticle(${post.id})">
+                                ${post.title} ${newBadge}
                             </h2>
                             <p class="text-textMuted mb-6 leading-relaxed">
                                 ${post.summary}
