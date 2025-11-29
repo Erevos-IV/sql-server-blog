@@ -61,18 +61,35 @@
         .prose a { color: #818cf8; text-decoration: none; }
         .prose a:hover { text-decoration: underline; }
 
-        /* Copy Button Styling */
-        .code-wrapper { position: relative; margin-bottom: 1.5rem; }
+        /* Copy Button Styling - VS Code Style */
+        .code-wrapper { position: relative; }
         .copy-btn {
-            position: absolute; top: 0.5rem; right: 0.5rem;
-            background: #334155; color: #94a3b8;
-            border-radius: 0.25rem; padding: 0.25rem 0.5rem;
-            font-size: 0.75rem; font-family: sans-serif;
-            opacity: 0; transition: opacity 0.2s; cursor: pointer;
-            border: 1px solid #475569;
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            background-color: transparent;
+            color: #94a3b8; /* textMuted */
+            transition: all 0.2s;
+            opacity: 0;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .code-wrapper:hover .copy-btn { opacity: 1; }
-        .copy-btn:hover { background: #475569; color: white; }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover {
+            background-color: #334155; /* surfaceHighlight */
+            color: #f1f5f9; /* textMain */
+            border-color: #475569;
+        }
+        .copy-btn-success {
+            color: #22d3ee !important; /* primary */
+            border-color: #22d3ee !important;
+        }
 
         /* Transitions */
         .fade-in { animation: fadeIn 0.3s ease-out forwards; }
@@ -379,18 +396,24 @@
             codeBlocks.forEach(pre => {
                 // Wrapper for positioning
                 const wrapper = document.createElement('div');
-                wrapper.className = 'code-wrapper';
+                wrapper.className = 'code-wrapper group/code'; // Add group for hover
                 pre.parentNode.insertBefore(wrapper, pre);
                 wrapper.appendChild(pre);
 
                 // Button
                 const btn = document.createElement('button');
                 btn.className = 'copy-btn';
-                btn.innerText = 'Copy';
+                btn.innerHTML = '<i data-lucide="copy" class="w-4 h-4"></i>'; // Use icon
+                
                 btn.addEventListener('click', () => {
                     navigator.clipboard.writeText(pre.innerText).then(() => {
-                        btn.innerText = 'Copied!';
-                        setTimeout(() => btn.innerText = 'Copy', 2000);
+                        btn.classList.add('copy-btn-success');
+                        btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i>';
+                        setTimeout(() => {
+                            btn.classList.remove('copy-btn-success');
+                            btn.innerHTML = '<i data-lucide="copy" class="w-4 h-4"></i>';
+                            lucide.createIcons(); // Re-render icon
+                        }, 2000);
                     });
                 });
                 wrapper.appendChild(btn);
