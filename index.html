@@ -94,10 +94,12 @@
             100% { transform: translateX(-100%); }
         }
         .animate-marquee {
+            /* Changed from 25s to 45s for slower speed */
             animation: marquee 45s linear infinite; 
             display: inline-block;
             white-space: nowrap;
         }
+        /* Pause on hover */
         .marquee-container:hover .animate-marquee {
             animation-play-state: paused;
         }
@@ -171,7 +173,7 @@
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
                         <input type="text" placeholder="Search..." oninput="performSearch(this.value)" class="bg-surfaceHighlight text-sm rounded-full pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary w-40 focus:w-64 transition-all duration-300 placeholder-textMuted">
                     </div>
-                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v4.4</div>
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v4.5</div>
                     <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
                 </div>
             </div>
@@ -301,25 +303,25 @@
             content.style.fontSize = `${currentFontSize}%`;
         }
 
-        // --- NEW: Zen Mode Logic ---
+        // --- NEW: Zen Mode Logic (Bug Fixed) ---
         function toggleZenMode() {
             isZenMode = !isZenMode;
             const sidebar = document.getElementById('sidebar-col');
             const mainCol = document.getElementById('main-content-col');
-            const btnIcon = document.querySelector('#zen-btn i');
+            const btn = document.getElementById('zen-btn');
 
             if (isZenMode) {
                 // Hide sidebar, expand main
                 sidebar.classList.add('hidden', 'lg:hidden');
                 mainCol.classList.remove('lg:col-span-8');
-                mainCol.classList.add('lg:col-span-12', 'max-w-4xl', 'mx-auto'); // Center content
-                btnIcon.setAttribute('data-lucide', 'shrink');
+                mainCol.classList.add('lg:col-span-12', 'max-w-4xl', 'mx-auto'); 
+                if(btn) btn.innerHTML = '<i data-lucide="shrink" class="w-4 h-4"></i>';
             } else {
                 // Restore layout
                 sidebar.classList.remove('hidden', 'lg:hidden');
                 mainCol.classList.add('lg:col-span-8');
                 mainCol.classList.remove('lg:col-span-12', 'max-w-4xl', 'mx-auto');
-                btnIcon.setAttribute('data-lucide', 'expand');
+                if(btn) btn.innerHTML = '<i data-lucide="expand" class="w-4 h-4"></i>';
             }
             lucide.createIcons();
         }
@@ -448,7 +450,8 @@
             const mainCol = document.getElementById('main-content-col');
             mainCol.classList.add('lg:col-span-8');
             mainCol.classList.remove('lg:col-span-12', 'max-w-4xl', 'mx-auto');
-            document.querySelector('#zen-btn i')?.setAttribute('data-lucide', 'expand');
+            const zenBtn = document.getElementById('zen-btn');
+            if(zenBtn) zenBtn.innerHTML = '<i data-lucide="expand" class="w-4 h-4"></i>';
 
             const dynReadTime = calculateReadTime(post.content);
             const renderedContent = marked.parse(post.content);
