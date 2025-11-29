@@ -94,7 +94,8 @@
             100% { transform: translateX(-100%); }
         }
         .animate-marquee {
-            animation: marquee 25s linear infinite;
+            /* Changed from 25s to 45s for slower speed */
+            animation: marquee 45s linear infinite; 
             display: inline-block;
             white-space: nowrap;
         }
@@ -118,9 +119,9 @@
     <div id="announcement-bar" class="fixed top-0 left-0 right-0 h-10 bg-blue-900/90 border-b border-blue-800 z-[60] flex items-center overflow-hidden marquee-container backdrop-blur-sm">
         <div class="animate-marquee text-xs font-bold text-blue-100 flex gap-12">
             <span>🚀 SQL Server 2025 Public Preview is now available!</span>
-            <span>📢 Upcoming Webinar: "Mastering Indexes" on Dec 15th.</span>
+            <span>🔧 Maintenance: Best practices for Index Rebuilds vs Reorganize strategies.</span>
             <span>💡 Tip of the Day: Always check Wait Stats before tuning queries.</span>
-            <span>⚡ Performance: New benchmarks show 30% faster analytics queries.</span>
+            <span>📊 Analysis: Deep dive into the new Intelligent Query Processing features.</span>
         </div>
         <!-- Close Button -->
         <button onclick="document.getElementById('announcement-bar').style.display='none'; document.body.style.paddingTop='0';" class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-blue-300 hover:text-white bg-blue-900/80 rounded z-10 cursor-pointer">
@@ -140,9 +141,13 @@
                         <i data-lucide="database" class="w-8 h-8 text-primary group-hover:rotate-12 transition-transform"></i>
                         <span class="font-extrabold text-xl tracking-tight text-white">SQL Server <span class="text-primary">Insights</span></span>
                     </div>
-                    <!-- Desktop Nav (Simple Links) -->
+                    
+                    <!-- Desktop Nav -->
                     <div class="hidden sm:ml-8 sm:flex sm:space-x-4">
-                        <button onclick="filterCategory('all')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-white hover:text-primary transition">Latest</button>
+                        <button onclick="filterCategory('all')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-white bg-surfaceHighlight">Latest</button>
+                        <button onclick="filterCategory('performance')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">Performance</button>
+                        <button onclick="filterCategory('tsql')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">T-SQL</button>
+                        <button onclick="filterCategory('dba')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">DBA Life</button>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
@@ -151,7 +156,7 @@
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
                         <input type="text" placeholder="Search..." oninput="performSearch(this.value)" class="bg-surfaceHighlight text-sm rounded-full pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary w-40 focus:w-64 transition-all duration-300 placeholder-textMuted">
                     </div>
-                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v3.4</div>
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v3.6</div>
                     <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
                 </div>
             </div>
