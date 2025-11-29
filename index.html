@@ -75,7 +75,7 @@
             cursor: pointer;
         }
         .copy-btn { right: 0.75rem; }
-        .download-btn { right: 3rem; }
+        .download-btn { right: 3rem; } /* Positioned to the left of copy */
 
         .code-wrapper:hover .action-btn { opacity: 1; }
         .action-btn:hover {
@@ -107,8 +107,11 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden-view { display: none; }
 
-        /* Custom Selection */
-        ::selection { background: #22d3ee; color: #0f172a; }
+        /* CUSTOM SELECTION HIGHLIGHT */
+        ::selection {
+            background: #22d3ee; /* Primary Cyan */
+            color: #0f172a; /* Dark Text */
+        }
 
         /* PRINT STYLES - Clean PDF/Paper Output */
         @media print {
@@ -128,19 +131,20 @@
 </head>
 <body class="flex flex-col min-h-screen pt-10 transition-all duration-300">
 
-    <!-- Marquee -->
+    <!-- FEATURE: Marquee Announcement Bar -->
     <div id="announcement-bar" class="fixed top-0 left-0 right-0 h-10 bg-blue-900/90 border-b border-blue-800 z-[60] flex items-center overflow-hidden marquee-container backdrop-blur-sm">
         <div class="animate-marquee text-xs font-bold text-blue-100 flex gap-12">
             <span>🚀 Announcement: SQL Server 2025 General Availability is here!</span>
             <span>✨ New Features: Native Vector Search, AI-Driven Query Optimization, & T-SQL Copilot.</span>
             <span>🛡️ Best Practice: Always test in UAT before Deploying in Production.</span>
         </div>
+        <!-- Close Button -->
         <button onclick="dismissAnnouncement()" class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-blue-300 hover:text-white bg-blue-900/80 rounded z-10 cursor-pointer">
             <i data-lucide="x" class="w-4 h-4"></i>
         </button>
     </div>
 
-    <!-- Reading Progress -->
+    <!-- FEATURE: Scroll Progress Bar (Below marquee) -->
     <div id="reading-progress" class="fixed top-10 left-0 h-1 bg-primary z-[100] w-0 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(34,211,238,0.5)]"></div>
 
     <!-- Navigation -->
@@ -152,7 +156,9 @@
                         <i data-lucide="database" class="w-8 h-8 text-primary group-hover:rotate-12 transition-transform"></i>
                         <span class="font-extrabold text-xl tracking-tight text-white">SQL Server <span class="text-primary">Insights</span></span>
                     </div>
-                    <div class="hidden md:ml-8 md:flex md:space-x-4">
+                    
+                    <!-- Desktop Nav -->
+                    <div class="hidden sm:ml-8 sm:flex sm:space-x-4">
                         <button onclick="filterCategory('all')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-white bg-surfaceHighlight">Latest</button>
                         <button onclick="filterCategory('performance')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">Performance</button>
                         <button onclick="filterCategory('tsql')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">T-SQL</button>
@@ -160,30 +166,14 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
+                    <!-- Search Bar -->
                     <div class="relative hidden md:block">
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
                         <input type="text" placeholder="Search..." oninput="performSearch(this.value)" class="bg-surfaceHighlight text-sm rounded-full pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary w-40 focus:w-64 transition-all duration-300 placeholder-textMuted">
                     </div>
-                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v4.2</div>
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v4.4</div>
                     <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
                 </div>
-                <div class="flex items-center md:hidden">
-                    <button onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white p-2">
-                        <i data-lucide="menu" class="w-6 h-6"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden border-t border-surfaceHighlight bg-surface">
-            <div class="px-4 pt-4 pb-2 space-y-3">
-                <div class="relative w-full">
-                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
-                    <input type="text" placeholder="Search articles..." oninput="performSearch(this.value)" class="w-full bg-surfaceHighlight text-sm rounded-lg pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary placeholder-textMuted">
-                </div>
-                <button onclick="filterCategory('all'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-surfaceHighlight">Latest</button>
-                <button onclick="filterCategory('performance'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-surfaceHighlight">Performance</button>
-                <button onclick="filterCategory('tsql'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-surfaceHighlight">T-SQL</button>
-                <button onclick="filterCategory('dba'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-surfaceHighlight">DBA Life</button>
             </div>
         </div>
     </nav>
@@ -219,14 +209,14 @@
                         
                         <!-- Reader Tools -->
                         <div class="flex items-center gap-2 bg-surfaceHighlight p-1 rounded-lg border border-slate-600/50">
-                            <button onclick="changeFontSize(-1)" class="p-1.5 text-textMuted hover:text-white rounded hover:bg-slate-600 transition" title="Decrease Font Size">
-                                <i data-lucide="a-small" class="w-4 h-4"></i>
+                            <button onclick="changeFontSize(-1)" class="w-8 h-8 flex items-center justify-center text-textMuted hover:text-white rounded hover:bg-slate-600 transition" title="Decrease Font Size">
+                                <span class="font-bold text-xs">A-</span>
                             </button>
-                            <button onclick="changeFontSize(1)" class="p-1.5 text-textMuted hover:text-white rounded hover:bg-slate-600 transition" title="Increase Font Size">
-                                <i data-lucide="a-large-small" class="w-4 h-4"></i>
+                            <button onclick="changeFontSize(1)" class="w-8 h-8 flex items-center justify-center text-textMuted hover:text-white rounded hover:bg-slate-600 transition" title="Increase Font Size">
+                                <span class="font-bold text-base">A+</span>
                             </button>
                             <div class="w-px h-4 bg-slate-600 mx-1"></div>
-                            <button onclick="toggleZenMode()" id="zen-btn" class="p-1.5 text-textMuted hover:text-primary rounded hover:bg-slate-600 transition" title="Toggle Zen Mode">
+                            <button onclick="toggleZenMode()" id="zen-btn" class="w-8 h-8 flex items-center justify-center text-textMuted hover:text-primary rounded hover:bg-slate-600 transition" title="Toggle Zen Mode">
                                 <i data-lucide="expand" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -569,7 +559,13 @@
             lucide.createIcons();
         }
 
+        // Updated showHome function
         function showHome() {
+            // Fix: Reset Zen Mode layout when going back to home
+            if (isZenMode) {
+                toggleZenMode(); 
+            }
+
             document.getElementById('article-view').classList.add('hidden-view');
             document.getElementById('home-view').classList.remove('hidden-view');
             document.getElementById('home-view').classList.add('fade-in');
