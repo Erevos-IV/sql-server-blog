@@ -1,5 +1,72 @@
 const blogPosts = [
     {
+        id: 6,
+        title: "Advanced Performance Tuning: Beyond Indexes",
+        category: "performance",
+        categoryColor: "primary",
+        date: "Nov 30, 2025",
+        readTime: "12 min",
+        author: "Billy Gousetis",
+        summary: "You have optimized every query and built every index, but the server is still struggling. It's time to look at the architecture: Partitioning, Archiving, and VLDB strategies.",
+        content: `
+# When Indexing is Not Enough
+
+Every DBA knows the drill: capture the slow query, analyze the execution plan, add a missing index, and watch performance improve. But what happens when you have optimized every query, yet the system is still slowing down?
+
+This usually happens when your **data volume** outgrows your **hardware capabilities**. When a table hits 100GB, 500GB, or 1TB, simple B-Tree indexing stops being a magic bullet. Maintenance windows exceed their time limits, and backups take forever.
+
+Here are the advanced architectural strategies you need to implement when you enter the realm of **VLDBs (Very Large Databases)**.
+
+### 1. Table Partitioning
+Partitioning allows you to split a single large table into smaller, manageable chunks (partitions) based on a column (usually a date).
+
+**Why it helps:**
+* **Partition Elimination:** If you query \`WHERE OrderDate = '2025-01-01'\`, SQL Server only scans the partition for 2025, ignoring the terabytes of data from 2015-2024.
+* **Maintenance:** You can rebuild indexes on just the *active* partition (current month) without locking the historical data.
+* **Switching:** You can archive data instantly using \`SWITCH PARTITION\`, which is a metadata-only operation (milliseconds) compared to a massive \`DELETE\` (hours).
+
+\`\`\`sql
+-- Example: Creating a Partition Function
+CREATE PARTITION FUNCTION [PF_Yearly] (datetime)
+AS RANGE RIGHT FOR VALUES ('2023-01-01', '2024-01-01', '2025-01-01');
+\`\`\`
+
+### 2. Data Archiving (Cold Storage)
+Do you really need 10 years of sales history in your primary transactional database? Probably not. The active application likely only touches the last 12-24 months.
+
+**The Strategy:**
+1.  Create a separate **Archive Database** (on cheaper storage).
+2.  Use SSIS, Azure Data Factory, or T-SQL scripts to move data older than X years to the Archive DB.
+3.  Delete the old data from the Production DB (using batch deletes to minimize transaction log growth).
+
+**Benefit:** Your active indexes become smaller, RAM usage becomes more efficient, and backups become significantly faster.
+
+### 3. Columnstore Indexes
+If you are running analytical queries (SUM, AVG, COUNT) on millions of rows, standard Row-Store indexes are inefficient.
+
+**Clustered Columnstore Indexes (CCI)** store data by column rather than by row. This allows for:
+* **Massive Compression:** Up to 10x smaller footprint.
+* **Batch Mode Execution:** Processing rows in batches of 900, speeding up aggregations by 10x-100x.
+
+\`\`\`sql
+-- Convert a large fact table to Columnstore
+CREATE CLUSTERED COLUMNSTORE INDEX [CCI_FactSales] ON [FactSales];
+\`\`\`
+
+### 4. Data Compression
+If you are I/O bound, enabling Page Compression can be a quick win. It trades a small amount of CPU for a significant reduction in Disk I/O.
+
+\`\`\`sql
+ALTER INDEX [IX_LargeTable] ON [LargeTable] REBUILD WITH (DATA_COMPRESSION = PAGE);
+\`\`\`
+
+### References
+* [Partitioned Tables and Indexes - Microsoft Learn](https://learn.microsoft.com/en-us/sql/relational-databases/partitions/partitioned-tables-and-indexes)
+* [Columnstore Indexes: Overview](https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-overview)
+* [Data Compression](https://learn.microsoft.com/en-us/sql/relational-databases/data-compression/data-compression)
+        `
+    },
+    {
         id: 5,
         title: "SQL Server 2025: Native Vector Support & AI",
         category: "tsql",
