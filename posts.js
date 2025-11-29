@@ -1,12 +1,53 @@
 const blogPosts = [
     {
+        id: 5,
+        title: "SQL Server 2025: Native Vector Support & AI",
+        category: "tsql",
+        categoryColor: "secondary",
+        date: "Nov 29, 2025",
+        readTime: "5 min",
+        author: "Billy Gousetis",
+        summary: "Native support for Vector data types, AI integration, and Regular Expressions are finally here. Here is what you need to know about SQL Server 2025.",
+        content: `
+# SQL Server 2025 is Here
+
+Microsoft has announced SQL Server 2025 (17.x), and it is packed with features that bridge the gap between traditional relational data and the AI revolution.
+
+### 1. Native Vector Support
+This is the game-changer. SQL Server now supports a native **Vector** data type, making it a viable vector database for RAG (Retrieval-Augmented Generation) applications.
+- **New Data Type:** \`VECTOR(dimensions)\`
+- **Functions:** \`VECTOR_DISTANCE\`, \`VECTOR_NORM\` for similarity search.
+- **Indexing:** Dedicated vector indexes for high-performance similarity queries.
+
+### 2. Regular Expressions (Regex)
+Finally! We no longer need CLR integration for complex string matching. Native Regex functions are now built directly into the engine:
+\`\`\`sql
+-- Example of new Regex capability
+SELECT * FROM Users 
+WHERE REGEXP_LIKE(Email, '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
+\`\`\`
+
+### 3. Optimized Locking
+SQL Server 2025 reduces lock memory consumption and avoids lock escalation for many workloads. This borrows the "Optimized Locking" architecture previously exclusive to Azure SQL Database, making high-concurrency workloads much smoother out of the box.
+
+### 4. Native Binary JSON (Compression)
+One of the most requested features is here. JSON is no longer stored as inefficient text (\`NVARCHAR\`). 
+SQL Server 2025 introduces a **native binary format** for JSON data.
+* **Compression:** This binary format significantly reduces storage footprint compared to text-based JSON.
+* **Performance:** It allows the engine to seek directly into the document (parsing is 5-10x faster) without reading the entire text string.
+
+### References
+* [What's New in SQL Server 2025 - Microsoft Learn](https://learn.microsoft.com/en-us/sql/sql-server/what-s-new-in-sql-server-2025?view=sql-server-ver17)
+        `
+    },
+    {
         id: 1,
         title: "Fix: SSMS Offline Installation Certificate Error",
         category: "dba",
         categoryColor: "green-400",
         date: "Nov 28, 2025",
-        readTime: "2 min",
-        author: "Billy",
+        readTime: "3 min",
+        author: "Billy Gousetis",
         summary: "Encountered 'Error 0x80131509: Signature verification failed' while installing SSMS offline? Here is the fix involving the Microsoft Windows Code Signing PCA 2024 certificate.",
         content: `
 # SSMS Offline Installation Error: Invalid Certificate
