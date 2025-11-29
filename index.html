@@ -85,7 +85,13 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v2.6</div>
+                    <!-- Search Bar -->
+                    <div class="relative hidden md:block">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
+                        <input type="text" placeholder="Search..." oninput="performSearch(this.value)" class="bg-surfaceHighlight text-sm rounded-full pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary w-40 focus:w-64 transition-all duration-300 placeholder-textMuted">
+                    </div>
+                    
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v2.7</div>
                     <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
                 </div>
             </div>
@@ -189,31 +195,17 @@
 
         lucide.createIcons();
 
-        // 1. Render List on Load
-        function renderArticleList(filter = 'all') {
+        // Helper: Renders an array of posts to the container
+        function renderPosts(posts) {
             const container = document.getElementById('article-list-container');
             container.innerHTML = ''; // Clear current
 
-            // Check if blogPosts exists (loaded from posts.js)
-            if (typeof blogPosts === 'undefined') {
-                container.innerHTML = `<div class="text-center text-red-400 py-10">
-                    <p class="font-bold text-lg mb-2">Error: Articles not found.</p>
-                    <p class="text-sm">Make sure <code>posts.js</code> is in the same folder as <code>index.html</code>.</p>
-                </div>`;
+            if (posts.length === 0) {
+                container.innerHTML = `<div class="text-center text-textMuted py-10 italic">No articles found.</div>`;
                 return;
             }
 
-            // Update Sidebar Counts
-            updateCounts();
-
-            const filteredPosts = blogPosts.filter(post => filter === 'all' || post.category === filter);
-
-            if (filteredPosts.length === 0) {
-                container.innerHTML = `<div class="text-center text-textMuted py-10">No articles found in this category.</div>`;
-                return;
-            }
-
-            filteredPosts.forEach(post => {
+            posts.forEach(post => {
                 // Determine color classes dynamically
                 let tagClass = '';
                 let textClass = '';
@@ -251,6 +243,43 @@
             lucide.createIcons();
         }
 
+        // 1. Render List by Category (Default)
+        function renderArticleList(filter = 'all') {
+            // Check if blogPosts exists (loaded from posts.js)
+            if (typeof blogPosts === 'undefined') {
+                document.getElementById('article-list-container').innerHTML = `<div class="text-center text-red-400 py-10">
+                    <p class="font-bold text-lg mb-2">Error: Articles not found.</p>
+                    <p class="text-sm">Make sure <code>posts.js</code> is in the same folder as <code>index.html</code>.</p>
+                </div>`;
+                return;
+            }
+
+            // Update Sidebar Counts
+            updateCounts();
+
+            // Filter logic
+            const filteredPosts = blogPosts.filter(post => filter === 'all' || post.category === filter);
+            renderPosts(filteredPosts);
+        }
+
+        // 2. Perform Search
+        function performSearch(query) {
+            showHome(); // Switch to list view
+            
+            if (!query) {
+                renderArticleList('all'); // Reset to showing all if empty
+                return;
+            }
+
+            const lowerQuery = query.toLowerCase();
+            const results = blogPosts.filter(post => 
+                post.title.toLowerCase().includes(lowerQuery) || 
+                post.content.toLowerCase().includes(lowerQuery)
+            );
+
+            renderPosts(results);
+        }
+
         function updateCounts() {
             if (typeof blogPosts === 'undefined') return;
             
@@ -263,7 +292,7 @@
             document.getElementById('count-dba').innerText = dbaCount;
         }
 
-        // 2. Open Article View
+        // 3. Open Article View
         function openArticle(id) {
             if (typeof blogPosts === 'undefined') return;
             const post = blogPosts.find(p => p.id === id);
@@ -315,7 +344,7 @@
             lucide.createIcons();
         }
 
-        // 3. Navigation
+        // 4. Navigation
         function showHome() {
             document.getElementById('article-view').classList.add('hidden-view');
             document.getElementById('home-view').classList.remove('hidden-view');
