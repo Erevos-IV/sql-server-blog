@@ -75,7 +75,7 @@
             cursor: pointer;
         }
         .copy-btn { right: 0.75rem; }
-        .download-btn { right: 3rem; } /* Positioned to the left of copy */
+        .download-btn { right: 3rem; }
 
         .code-wrapper:hover .action-btn { opacity: 1; }
         .action-btn:hover {
@@ -94,12 +94,10 @@
             100% { transform: translateX(-100%); }
         }
         .animate-marquee {
-            /* Changed from 25s to 45s for slower speed */
             animation: marquee 45s linear infinite; 
             display: inline-block;
             white-space: nowrap;
         }
-        /* Pause on hover */
         .marquee-container:hover .animate-marquee {
             animation-play-state: paused;
         }
@@ -109,43 +107,51 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden-view { display: none; }
 
-        /* CUSTOM SELECTION HIGHLIGHT */
-        ::selection {
-            background: #22d3ee; /* Primary Cyan */
-            color: #0f172a; /* Dark Text */
+        /* Custom Selection */
+        ::selection { background: #22d3ee; color: #0f172a; }
+
+        /* PRINT STYLES - Clean PDF/Paper Output */
+        @media print {
+            body { background-color: white; color: black; padding-top: 0; }
+            #announcement-bar, #main-nav, #reading-progress, aside, #back-to-top, .action-btn, button { display: none !important; }
+            #main-container, main { width: 100%; max-width: 100%; margin: 0; padding: 0; }
+            .bg-surface { background-color: white; border: none; box-shadow: none; }
+            .text-textMuted { color: #555; }
+            .text-white { color: black; }
+            .prose { color: black; }
+            .prose p, .prose li, .prose strong { color: black; }
+            .prose code { background-color: #f0f0f0; color: #d63384; border: 1px solid #ddd; }
+            .prose pre { background-color: #f5f5f5 !important; border: 1px solid #ccc; color: black; white-space: pre-wrap; }
+            a { text-decoration: underline; color: blue; }
         }
     </style>
 </head>
 <body class="flex flex-col min-h-screen pt-10 transition-all duration-300">
 
-    <!-- FEATURE: Marquee Announcement Bar -->
+    <!-- Marquee -->
     <div id="announcement-bar" class="fixed top-0 left-0 right-0 h-10 bg-blue-900/90 border-b border-blue-800 z-[60] flex items-center overflow-hidden marquee-container backdrop-blur-sm">
         <div class="animate-marquee text-xs font-bold text-blue-100 flex gap-12">
             <span>🚀 Announcement: SQL Server 2025 General Availability is here!</span>
             <span>✨ New Features: Native Vector Search, AI-Driven Query Optimization, & T-SQL Copilot.</span>
             <span>🛡️ Best Practice: Always test in UAT before Deploying in Production.</span>
         </div>
-        <!-- Close Button -->
         <button onclick="dismissAnnouncement()" class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-blue-300 hover:text-white bg-blue-900/80 rounded z-10 cursor-pointer">
             <i data-lucide="x" class="w-4 h-4"></i>
         </button>
     </div>
 
-    <!-- FEATURE: Scroll Progress Bar (Below marquee) -->
+    <!-- Reading Progress -->
     <div id="reading-progress" class="fixed top-10 left-0 h-1 bg-primary z-[100] w-0 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(34,211,238,0.5)]"></div>
 
     <!-- Navigation -->
     <nav id="main-nav" class="bg-surface border-b border-surfaceHighlight sticky top-10 z-50 backdrop-blur-md bg-opacity-90 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
-                <!-- Logo -->
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer group" onclick="showHome()">
                         <i data-lucide="database" class="w-8 h-8 text-primary group-hover:rotate-12 transition-transform"></i>
                         <span class="font-extrabold text-xl tracking-tight text-white">SQL Server <span class="text-primary">Insights</span></span>
                     </div>
-                    
-                    <!-- Desktop Nav (Hidden on Mobile) -->
                     <div class="hidden md:ml-8 md:flex md:space-x-4">
                         <button onclick="filterCategory('all')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-white bg-surfaceHighlight">Latest</button>
                         <button onclick="filterCategory('performance')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">Performance</button>
@@ -153,18 +159,14 @@
                         <button onclick="filterCategory('dba')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">DBA Life</button>
                     </div>
                 </div>
-
-                <!-- Desktop Search & Subscribe (Hidden on Mobile) -->
-                <div class="hidden md:flex items-center gap-4">
-                    <div class="relative">
+                <div class="flex items-center gap-4">
+                    <div class="relative hidden md:block">
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
                         <input type="text" placeholder="Search..." oninput="performSearch(this.value)" class="bg-surfaceHighlight text-sm rounded-full pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary w-40 focus:w-64 transition-all duration-300 placeholder-textMuted">
                     </div>
-                    <div class="text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v4.1</div>
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v4.2</div>
                     <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
                 </div>
-
-                <!-- Mobile Menu Button (Visible on Mobile) -->
                 <div class="flex items-center md:hidden">
                     <button onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white p-2">
                         <i data-lucide="menu" class="w-6 h-6"></i>
@@ -172,36 +174,29 @@
                 </div>
             </div>
         </div>
-
-        <!-- Mobile Menu Dropdown -->
         <div id="mobile-menu" class="hidden md:hidden border-t border-surfaceHighlight bg-surface">
             <div class="px-4 pt-4 pb-2 space-y-3">
-                <!-- Mobile Search -->
                 <div class="relative w-full">
                     <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
                     <input type="text" placeholder="Search articles..." oninput="performSearch(this.value)" class="w-full bg-surfaceHighlight text-sm rounded-lg pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary placeholder-textMuted">
                 </div>
-                
-                <!-- Mobile Nav Links -->
                 <button onclick="filterCategory('all'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-surfaceHighlight">Latest</button>
                 <button onclick="filterCategory('performance'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-surfaceHighlight">Performance</button>
                 <button onclick="filterCategory('tsql'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-surfaceHighlight">T-SQL</button>
                 <button onclick="filterCategory('dba'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-surfaceHighlight">DBA Life</button>
-                <button class="w-full text-center bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 mt-2">Subscribe</button>
             </div>
         </div>
     </nav>
 
-    <!-- Content Area -->
+    <!-- Main Content -->
     <div id="main-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
-        <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+        <div class="lg:grid lg:grid-cols-12 lg:gap-8 transition-all duration-500" id="layout-grid">
             
-            <!-- LEFT COLUMN: Dynamic Content -->
-            <main class="lg:col-span-8">
+            <!-- LEFT COLUMN: Content -->
+            <main class="lg:col-span-8 transition-all duration-500" id="main-content-col">
                 
-                <!-- VIEW 1: Article List (Home) -->
+                <!-- Home View -->
                 <div id="home-view" class="space-y-6 fade-in">
-                    <!-- Hero Banner -->
                     <div class="bg-gradient-to-r from-surface to-background border border-surfaceHighlight rounded-2xl p-8 mb-8 relative overflow-hidden">
                         <div class="absolute top-0 right-0 p-4 opacity-10"><i data-lucide="server" class="w-48 h-48"></i></div>
                         <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-4 relative z-10">
@@ -214,19 +209,35 @@
                     <div id="article-list-container" class="space-y-6"></div>
                 </div>
 
-                <!-- VIEW 2: Article Detail -->
+                <!-- Article Detail -->
                 <div id="article-view" class="hidden-view space-y-6 fade-in">
-                    <button onclick="showHome()" class="text-textMuted hover:text-primary flex items-center gap-2 mb-6 transition">
-                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Articles
-                    </button>
+                    <!-- Controls Row -->
+                    <div class="flex justify-between items-center mb-6">
+                        <button onclick="showHome()" class="text-textMuted hover:text-primary flex items-center gap-2 transition">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Articles
+                        </button>
+                        
+                        <!-- Reader Tools -->
+                        <div class="flex items-center gap-2 bg-surfaceHighlight p-1 rounded-lg border border-slate-600/50">
+                            <button onclick="changeFontSize(-1)" class="p-1.5 text-textMuted hover:text-white rounded hover:bg-slate-600 transition" title="Decrease Font Size">
+                                <i data-lucide="a-small" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="changeFontSize(1)" class="p-1.5 text-textMuted hover:text-white rounded hover:bg-slate-600 transition" title="Increase Font Size">
+                                <i data-lucide="a-large-small" class="w-4 h-4"></i>
+                            </button>
+                            <div class="w-px h-4 bg-slate-600 mx-1"></div>
+                            <button onclick="toggleZenMode()" id="zen-btn" class="p-1.5 text-textMuted hover:text-primary rounded hover:bg-slate-600 transition" title="Toggle Zen Mode">
+                                <i data-lucide="expand" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
                     <div id="article-content-container"></div>
                 </div>
             </main>
 
-            <!-- RIGHT COLUMN: Sidebar (Responsive) -->
-            <!-- Changed hidden lg:block to lg:block so it stacks on mobile instead of disappearing -->
-            <aside class="lg:block lg:col-span-4 space-y-6 mt-8 lg:mt-0">
-                <!-- About Widget -->
+            <!-- RIGHT COLUMN: Sidebar -->
+            <aside id="sidebar-col" class="lg:block lg:col-span-4 space-y-6 mt-8 lg:mt-0 transition-all duration-500 origin-right">
                 <div class="bg-surface rounded-xl border border-surfaceHighlight p-6 lg:sticky lg:top-24">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-secondary p-0.5">
@@ -254,7 +265,6 @@
                         </a>
                     </div>
                     
-                    <!-- Categories List -->
                     <div class="mt-8 pt-6 border-t border-surfaceHighlight">
                         <h4 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-4 flex items-center gap-2">
                             <i data-lucide="layers" class="w-3 h-3"></i> Categories
@@ -279,94 +289,99 @@
         </div>
     </div>
 
-    <!-- FEATURE: Back to Top Button -->
+    <!-- Back to Top Button -->
     <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-8 right-8 bg-primary text-background p-3 rounded-full shadow-lg shadow-cyan-500/50 hover:bg-cyan-300 transition-all duration-300 opacity-0 pointer-events-none z-50">
         <i data-lucide="arrow-up" class="w-6 h-6"></i>
     </button>
 
     <script>
         lucide.createIcons();
+        let currentFontSize = 100; // Percentage
+        let isZenMode = false;
 
-        // --- FEATURE: Toggle Mobile Menu ---
+        // --- NEW: Font Size Logic ---
+        function changeFontSize(direction) {
+            const content = document.getElementById('article-body');
+            if (!content) return;
+            
+            // Limits: 80% to 150%
+            if (direction === -1 && currentFontSize > 80) currentFontSize -= 10;
+            if (direction === 1 && currentFontSize < 150) currentFontSize += 10;
+            
+            content.style.fontSize = `${currentFontSize}%`;
+        }
+
+        // --- NEW: Zen Mode Logic ---
+        function toggleZenMode() {
+            isZenMode = !isZenMode;
+            const sidebar = document.getElementById('sidebar-col');
+            const mainCol = document.getElementById('main-content-col');
+            const btnIcon = document.querySelector('#zen-btn i');
+
+            if (isZenMode) {
+                // Hide sidebar, expand main
+                sidebar.classList.add('hidden', 'lg:hidden');
+                mainCol.classList.remove('lg:col-span-8');
+                mainCol.classList.add('lg:col-span-12', 'max-w-4xl', 'mx-auto'); // Center content
+                btnIcon.setAttribute('data-lucide', 'shrink');
+            } else {
+                // Restore layout
+                sidebar.classList.remove('hidden', 'lg:hidden');
+                mainCol.classList.add('lg:col-span-8');
+                mainCol.classList.remove('lg:col-span-12', 'max-w-4xl', 'mx-auto');
+                btnIcon.setAttribute('data-lucide', 'expand');
+            }
+            lucide.createIcons();
+        }
+
+        // --- Standard Features ---
         function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
+            document.getElementById('mobile-menu').classList.toggle('hidden');
         }
 
-        // --- FEATURE: Dismiss Announcement ---
         function dismissAnnouncement() {
-            const bar = document.getElementById('announcement-bar');
-            const nav = document.getElementById('main-nav');
-            const progress = document.getElementById('reading-progress');
-            
-            if (bar) bar.style.display = 'none';
+            document.getElementById('announcement-bar').style.display = 'none';
             document.body.style.paddingTop = '0';
-            
-            if (nav) {
-                nav.classList.remove('top-10');
-                nav.classList.add('top-0');
-            }
-            if (progress) {
-                progress.classList.remove('top-10');
-                progress.classList.add('top-0');
-            }
+            document.getElementById('main-nav').classList.replace('top-10', 'top-0');
+            document.getElementById('reading-progress').classList.replace('top-10', 'top-0');
         }
 
-        // --- FEATURE: Scroll Logic (Progress + Back to Top) ---
         window.addEventListener('scroll', () => {
             const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
             const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const scrolled = (winScroll / height) * 100;
+            document.getElementById("reading-progress").style.width = (winScroll / height * 100) + "%";
             
-            // Update Progress Bar
-            document.getElementById("reading-progress").style.width = scrolled + "%";
-
-            // Toggle Back to Top Button
-            const backToTopBtn = document.getElementById('back-to-top');
+            const backBtn = document.getElementById('back-to-top');
             if (winScroll > 300) {
-                backToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
-                backToTopBtn.classList.add('opacity-100', 'pointer-events-auto');
+                backBtn.classList.remove('opacity-0', 'pointer-events-none');
+                backBtn.classList.add('opacity-100', 'pointer-events-auto');
             } else {
-                backToTopBtn.classList.remove('opacity-100', 'pointer-events-auto');
-                backToTopBtn.classList.add('opacity-0', 'pointer-events-none');
+                backBtn.classList.remove('opacity-100', 'pointer-events-auto');
+                backBtn.classList.add('opacity-0', 'pointer-events-none');
             }
         });
 
-        // --- FEATURE: Dynamic Read Time ---
         function calculateReadTime(content) {
             const words = content.trim().split(/\s+/).length;
-            const time = Math.ceil(words / 200);
-            return `${time} min`;
+            return `${Math.ceil(words / 200)} min`;
         }
 
-        // --- FEATURE: Check for New Articles ---
         function isNew(dateStr) {
-            const postDate = new Date(dateStr);
-            const now = new Date();
-            const diffTime = Math.abs(now - postDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffDays = Math.ceil(Math.abs(new Date() - new Date(dateStr)) / (1000 * 60 * 60 * 24));
             return diffDays <= 14; 
         }
 
-        // --- Helper: Render List ---
         function renderPosts(posts) {
             const container = document.getElementById('article-list-container');
             container.innerHTML = ''; 
-
             if (posts.length === 0) {
                 container.innerHTML = `<div class="text-center text-textMuted py-10 italic">No articles found.</div>`;
                 return;
             }
-
             posts.forEach(post => {
                 const dynReadTime = calculateReadTime(post.content);
                 let tagClass = getTagStyle(post.categoryColor);
-                
-                // NEW Badge Logic
-                let newBadge = '';
-                if (isNew(post.date)) {
-                    newBadge = `<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20 animate-pulse">NEW</span>`;
-                }
+                let newBadge = isNew(post.date) ? `<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20 animate-pulse">NEW</span>` : '';
 
                 const html = `
                     <article class="article-card group bg-surface rounded-xl border border-surfaceHighlight overflow-hidden hover:border-gray-500 transition duration-300">
@@ -378,14 +393,10 @@
                             <h2 class="text-2xl font-bold text-white mb-3 hover:text-primary transition cursor-pointer flex items-center" onclick="openArticle(${post.id})">
                                 ${post.title} ${newBadge}
                             </h2>
-                            <p class="text-textMuted mb-6 leading-relaxed">
-                                ${post.summary}
-                            </p>
+                            <p class="text-textMuted mb-6 leading-relaxed">${post.summary}</p>
                             <div class="flex items-center justify-between border-t border-surfaceHighlight pt-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-background">
-                                        <i data-lucide="terminal" class="w-4 h-4"></i>
-                                    </div>
+                                    <div class="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-background"><i data-lucide="terminal" class="w-4 h-4"></i></div>
                                     <span class="text-sm font-medium text-textMuted">${post.author} • ${post.date}</span>
                                 </div>
                                 <button onclick="openArticle(${post.id})" class="text-white text-sm font-bold flex items-center hover:underline">
@@ -400,20 +411,18 @@
             lucide.createIcons();
         }
 
-        // --- Helper: Get Style String ---
         function getTagStyle(colorKey) {
             if (colorKey === 'primary') return 'bg-primary/10 text-primary border-primary/20';
             if (colorKey === 'secondary') return 'bg-secondary/10 text-secondary border-secondary/20';
             return 'bg-green-500/10 text-green-400 border-green-500/20';
         }
 
-        // --- Main Functions ---
         function renderArticleList(filter = 'all') {
             if (typeof blogPosts === 'undefined') {
                 document.getElementById('article-list-container').innerHTML = `<div class="text-center text-red-400">Error loading posts.js</div>`;
                 return;
             }
-            updateCounts(); // Reverted to using counts
+            updateCounts();
             const filteredPosts = blogPosts.filter(post => filter === 'all' || post.category === filter);
             renderPosts(filteredPosts);
         }
@@ -436,11 +445,20 @@
             document.getElementById('count-dba').innerText = blogPosts.filter(p => p.category === 'dba').length;
         }
 
-        // --- OPEN ARTICLE (The Heavy Lifting) ---
         function openArticle(id) {
             if (typeof blogPosts === 'undefined') return;
             const post = blogPosts.find(p => p.id === id);
             if (!post) return;
+
+            // Reset Zen Mode & Font Size when opening new article
+            currentFontSize = 100;
+            isZenMode = false;
+            // Need to manually reset layout classes if Zen was active
+            document.getElementById('sidebar-col').classList.remove('hidden', 'lg:hidden');
+            const mainCol = document.getElementById('main-content-col');
+            mainCol.classList.add('lg:col-span-8');
+            mainCol.classList.remove('lg:col-span-12', 'max-w-4xl', 'mx-auto');
+            document.querySelector('#zen-btn i')?.setAttribute('data-lucide', 'expand');
 
             const dynReadTime = calculateReadTime(post.content);
             const renderedContent = marked.parse(post.content);
@@ -449,7 +467,6 @@
 
             contentContainer.innerHTML = `
                 <div class="bg-surface rounded-xl border border-surfaceHighlight p-8">
-                    <!-- Header -->
                     <div class="flex flex-wrap gap-4 mb-6">
                         <span class="px-3 py-1 rounded-full text-xs font-bold border uppercase ${tagClass}">${post.category}</span>
                     </div>
@@ -458,9 +475,7 @@
                     </h1>
                     <div class="flex items-center gap-4 text-textMuted text-sm border-b border-surfaceHighlight pb-8 mb-8">
                         <div class="flex items-center gap-2">
-                             <div class="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-background">
-                                <i data-lucide="terminal" class="w-4 h-4"></i>
-                            </div>
+                             <div class="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-background"><i data-lucide="terminal" class="w-4 h-4"></i></div>
                             <span>${post.author}</span>
                         </div>
                         <span>•</span>
@@ -468,37 +483,25 @@
                         <span>•</span>
                         <span>${dynReadTime} read</span>
                     </div>
-
-                    <!-- Table of Contents -->
                     <div id="toc-container" class="mb-8 p-4 bg-background border border-surfaceHighlight rounded-lg hidden">
                         <p class="text-sm font-bold text-white mb-2 uppercase tracking-wide">Table of Contents</p>
                         <ul id="toc-list" class="space-y-1 text-sm text-textMuted"></ul>
                     </div>
-
-                    <!-- Article Body -->
-                    <div id="article-body" class="prose prose-invert max-w-none">
+                    <div id="article-body" class="prose prose-invert max-w-none transition-all duration-200">
                         ${renderedContent}
                     </div>
-
-                    <!-- Social Share -->
                     <div class="mt-12 pt-8 border-t border-surfaceHighlight">
                         <p class="text-sm font-bold text-white mb-4">Share this article</p>
                         <div class="flex gap-2">
-                             <a href="mailto:?subject=${encodeURIComponent(post.title)}&body=Check out this article: ${window.location.href}" class="bg-surfaceHighlight hover:bg-slate-600 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition">
-                                <i data-lucide="mail" class="w-4 h-4"></i> Email
-                             </a>
-                             <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(window.location.href)}" target="_blank" class="bg-[#1DA1F2]/20 hover:bg-[#1DA1F2]/30 text-[#1DA1F2] border border-[#1DA1F2]/30 px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition">
-                                <i data-lucide="twitter" class="w-4 h-4"></i> Twitter
-                             </a>
-                             <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}" target="_blank" class="bg-[#0077b5]/20 hover:bg-[#0077b5]/30 text-[#0077b5] border border-[#0077b5]/30 px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition">
-                                <i data-lucide="linkedin" class="w-4 h-4"></i> LinkedIn
-                             </a>
+                             <a href="mailto:?subject=${encodeURIComponent(post.title)}&body=Check out this article: ${window.location.href}" class="bg-surfaceHighlight hover:bg-slate-600 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition"><i data-lucide="mail" class="w-4 h-4"></i> Email</a>
+                             <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(window.location.href)}" target="_blank" class="bg-[#1DA1F2]/20 hover:bg-[#1DA1F2]/30 text-[#1DA1F2] border border-[#1DA1F2]/30 px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition"><i data-lucide="twitter" class="w-4 h-4"></i> Twitter</a>
+                             <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}" target="_blank" class="bg-[#0077b5]/20 hover:bg-[#0077b5]/30 text-[#0077b5] border border-[#0077b5]/30 px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition"><i data-lucide="linkedin" class="w-4 h-4"></i> LinkedIn</a>
                         </div>
                     </div>
                 </div>
             `;
 
-            // Post Processing (TOC & Copy/Download Buttons)
+            // TOC & Copy Buttons
             const articleBody = document.getElementById('article-body');
             const headers = articleBody.querySelectorAll('h2, h3');
             const tocContainer = document.getElementById('toc-container');
@@ -523,12 +526,10 @@
                 pre.parentNode.insertBefore(wrapper, pre);
                 wrapper.appendChild(pre);
 
-                // Copy Button
                 const copyBtn = document.createElement('button');
                 copyBtn.className = 'action-btn copy-btn';
                 copyBtn.innerHTML = '<i data-lucide="copy" class="w-4 h-4"></i>';
                 copyBtn.title = "Copy Code";
-                
                 copyBtn.addEventListener('click', () => {
                     navigator.clipboard.writeText(pre.innerText).then(() => {
                         copyBtn.classList.add('action-success');
@@ -541,12 +542,10 @@
                     });
                 });
 
-                // Download Button (Feature 5)
                 const downloadBtn = document.createElement('button');
                 downloadBtn.className = 'action-btn download-btn';
                 downloadBtn.innerHTML = '<i data-lucide="download" class="w-4 h-4"></i>';
                 downloadBtn.title = "Download .sql";
-
                 downloadBtn.addEventListener('click', () => {
                     const blob = new Blob([pre.innerText], { type: 'text/plain' });
                     const url = window.URL.createObjectURL(blob);
