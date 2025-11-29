@@ -5,8 +5,8 @@ const blogPosts = [
         category: "dba",
         categoryColor: "green-400",
         date: "Nov 28, 2025",
-        readTime: "3 min",
-        author: "Admin",
+        readTime: "2 min",
+        author: "Billy",
         summary: "Encountered 'Error 0x80131509: Signature verification failed' while installing SSMS offline? Here is the fix involving the Microsoft Windows Code Signing PCA 2024 certificate.",
         content: `
 # SSMS Offline Installation Error: Invalid Certificate
