@@ -160,7 +160,7 @@
                     </div>
                     
                     <!-- Desktop Nav -->
-                    <div class="hidden sm:ml-8 sm:flex sm:space-x-4">
+                    <div class="hidden md:ml-8 md:flex md:space-x-4">
                         <button onclick="filterCategory('all')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-white bg-surfaceHighlight">Latest</button>
                         <button onclick="filterCategory('performance')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">Performance</button>
                         <button onclick="filterCategory('tsql')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">T-SQL</button>
@@ -173,9 +173,26 @@
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
                         <input type="text" placeholder="Search..." oninput="performSearch(this.value)" class="bg-surfaceHighlight text-sm rounded-full pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary w-40 focus:w-64 transition-all duration-300 placeholder-textMuted">
                     </div>
-                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v4.5</div>
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v4.7</div>
                     <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
                 </div>
+                <div class="flex items-center md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white p-2">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden border-t border-surfaceHighlight bg-surface">
+            <div class="px-4 pt-4 pb-2 space-y-3">
+                <div class="relative w-full">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
+                    <input type="text" placeholder="Search articles..." oninput="performSearch(this.value)" class="w-full bg-surfaceHighlight text-sm rounded-lg pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary placeholder-textMuted">
+                </div>
+                <button onclick="filterCategory('all'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-surfaceHighlight">Latest</button>
+                <button onclick="filterCategory('performance'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-surfaceHighlight">Performance</button>
+                <button onclick="filterCategory('tsql'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-surfaceHighlight">T-SQL</button>
+                <button onclick="filterCategory('dba'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-surfaceHighlight">DBA Life</button>
             </div>
         </div>
     </nav>
@@ -303,7 +320,7 @@
             content.style.fontSize = `${currentFontSize}%`;
         }
 
-        // --- NEW: Zen Mode Logic (Bug Fixed) ---
+        // --- NEW: Zen Mode Logic ---
         function toggleZenMode() {
             isZenMode = !isZenMode;
             const sidebar = document.getElementById('sidebar-col');
@@ -450,13 +467,38 @@
             const mainCol = document.getElementById('main-content-col');
             mainCol.classList.add('lg:col-span-8');
             mainCol.classList.remove('lg:col-span-12', 'max-w-4xl', 'mx-auto');
-            const zenBtn = document.getElementById('zen-btn');
-            if(zenBtn) zenBtn.innerHTML = '<i data-lucide="expand" class="w-4 h-4"></i>';
+            document.querySelector('#zen-btn i')?.setAttribute('data-lucide', 'expand');
 
             const dynReadTime = calculateReadTime(post.content);
             const renderedContent = marked.parse(post.content);
             const contentContainer = document.getElementById('article-content-container');
             const tagClass = getTagStyle(post.categoryColor);
+
+            // --- FEATURE: Related Articles Logic ---
+            const relatedPosts = blogPosts.filter(p => p.category === post.category && p.id !== post.id).slice(0, 2);
+            let relatedHtml = '';
+            
+            if (relatedPosts.length > 0) {
+                relatedHtml = `
+                    <div class="mt-12 pt-8 border-t border-surfaceHighlight">
+                        <h3 class="text-lg font-bold text-white mb-4">Read Next</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${relatedPosts.map(p => {
+                                const rTime = calculateReadTime(p.content);
+                                return `
+                                <div onclick="openArticle(${p.id}); window.scrollTo({top:0, behavior:'smooth'})" class="bg-surfaceHighlight/30 hover:bg-surfaceHighlight/50 border border-surfaceHighlight rounded-lg p-4 cursor-pointer transition group">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-xs font-bold text-primary uppercase">${p.category}</span>
+                                        <span class="text-textMuted text-xs">• ${rTime}</span>
+                                    </div>
+                                    <h4 class="font-bold text-white group-hover:text-primary transition line-clamp-2">${p.title}</h4>
+                                </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
 
             contentContainer.innerHTML = `
                 <div class="bg-surface rounded-xl border border-surfaceHighlight p-8">
@@ -483,11 +525,13 @@
                     <div id="article-body" class="prose prose-invert max-w-none transition-all duration-200">
                         ${renderedContent}
                     </div>
+                    
+                    ${relatedHtml}
+
                     <div class="mt-12 pt-8 border-t border-surfaceHighlight">
                         <p class="text-sm font-bold text-white mb-4">Share this article</p>
                         <div class="flex gap-2">
                              <a href="mailto:?subject=${encodeURIComponent(post.title)}&body=Check out this article: ${window.location.href}" class="bg-surfaceHighlight hover:bg-slate-600 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition"><i data-lucide="mail" class="w-4 h-4"></i> Email</a>
-                             <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(window.location.href)}" target="_blank" class="bg-[#1DA1F2]/20 hover:bg-[#1DA1F2]/30 text-[#1DA1F2] border border-[#1DA1F2]/30 px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition"><i data-lucide="twitter" class="w-4 h-4"></i> Twitter</a>
                              <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}" target="_blank" class="bg-[#0077b5]/20 hover:bg-[#0077b5]/30 text-[#0077b5] border border-[#0077b5]/30 px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition"><i data-lucide="linkedin" class="w-4 h-4"></i> LinkedIn</a>
                         </div>
                     </div>
