@@ -61,7 +61,7 @@
             --bg-color: #f8fafc;        /* Slate 50 */
             --surface-color: #ffffff;   /* White */
             --surface-highlight: #e2e8f0; /* Slate 200 */
-            --primary-color: #0891b2;   /* Cyan 600 (Darker for readability) */
+            --primary-color: #0891b2;   /* Cyan 600 */
             --secondary-color: #4f46e5; /* Indigo 600 */
             --text-main: #0f172a;       /* Slate 900 */
             --text-muted: #64748b;      /* Slate 500 */
@@ -73,14 +73,14 @@
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); transition: background-color 0.3s, color 0.3s; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* Prose Overrides - Using Variables */
+        /* Prose Overrides */
         .prose h1, .prose h2, .prose h3 { color: var(--text-main); font-weight: 800; scroll-margin-top: 100px; }
         .prose p { color: var(--text-muted); }
         .prose strong { color: var(--primary-color); }
         .prose ul { color: var(--text-muted); }
         .prose li::marker { color: var(--secondary-color); }
         .prose code { color: #d946ef; background: var(--surface-highlight); padding: 2px 4px; border-radius: 4px; font-weight: normal; }
-        /* Keep code blocks dark even in light mode for contrast */
+        /* Keep code blocks dark for contrast */
         .prose pre { background: #0f172a !important; border: 1px solid #334155; color: #e2e8f0; } 
         .prose pre code { background: transparent; padding: 0; color: inherit; }
         .prose blockquote { border-left-color: var(--primary-color); color: var(--text-muted); font-style: italic; }
@@ -178,8 +178,10 @@
                         <i data-lucide="sun" class="w-5 h-5"></i>
                     </button>
 
-                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v5.0</div>
-                    <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:brightness-110 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v5.1</div>
+                    
+                    <!-- Subscribe Button (Reverted) -->
+                    <button onclick="alert('Newsletter coming soon!')" class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:brightness-110 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
                 </div>
                 <div class="flex items-center md:hidden">
                     <button onclick="toggleMobileMenu()" class="text-textMuted hover:text-textMain p-2">
@@ -198,6 +200,7 @@
                 <button onclick="filterCategory('performance'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surfaceHighlight">Performance</button>
                 <button onclick="filterCategory('tsql'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surfaceHighlight">T-SQL</button>
                 <button onclick="filterCategory('dba'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surfaceHighlight">DBA Life</button>
+                <button onclick="toggleMobileMenu(); alert('Newsletter coming soon!')" class="w-full text-center bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:brightness-110 mt-2">Subscribe</button>
             </div>
         </div>
     </nav>
@@ -311,7 +314,7 @@
         let currentFontSize = 100;
         let isZenMode = false;
 
-        // --- NEW: THEME TOGGLE LOGIC ---
+        // --- THEME TOGGLE LOGIC ---
         function toggleTheme() {
             const body = document.body;
             const currentTheme = body.getAttribute('data-theme');
@@ -332,7 +335,6 @@
         // Initialize Theme
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.body.setAttribute('data-theme', savedTheme);
-        // We set icon in DOM based on default, but update if saved is light
         if (savedTheme === 'light') {
             document.addEventListener("DOMContentLoaded", () => {
                 const icon = document.querySelector('#theme-toggle i');
@@ -341,7 +343,6 @@
             });
         }
 
-        // --- Standard Logic ---
         function changeFontSize(direction) {
             const content = document.getElementById('article-body');
             if (!content) return;
@@ -491,8 +492,7 @@
             const mainCol = document.getElementById('main-content-col');
             mainCol.classList.add('lg:col-span-8');
             mainCol.classList.remove('lg:col-span-12', 'max-w-4xl', 'mx-auto');
-            const zenBtn = document.getElementById('zen-btn');
-            if(zenBtn) zenBtn.innerHTML = '<i data-lucide="expand" class="w-4 h-4"></i>';
+            document.querySelector('#zen-btn i')?.setAttribute('data-lucide', 'expand');
 
             const dynReadTime = calculateReadTime(post.content);
             const renderedContent = marked.parse(post.content);
@@ -633,10 +633,13 @@
             lucide.createIcons();
         }
 
+        // Updated showHome function
         function showHome() {
+            // Fix: Reset Zen Mode layout when going back to home
             if (isZenMode) {
                 toggleZenMode(); 
             }
+
             document.getElementById('article-view').classList.add('hidden-view');
             document.getElementById('home-view').classList.remove('hidden-view');
             document.getElementById('home-view').classList.add('fade-in');
