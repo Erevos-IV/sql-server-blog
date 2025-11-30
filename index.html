@@ -116,9 +116,6 @@
         /* Selection */
         ::selection { background: var(--selection-color); color: var(--selection-text); }
 
-        /* Giscus Theme Override */
-        .giscus { margin-top: 3rem; border-top: 1px solid #334155; padding-top: 2rem; }
-
         /* Print */
         @media print {
             body { background-color: white; color: black; padding-top: 0; }
@@ -181,7 +178,7 @@
                         <i data-lucide="sun" class="w-5 h-5"></i>
                     </button>
 
-                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v5.4</div>
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v5.6</div>
                     
                     <!-- Subscribe Button -->
                     <button onclick="alert('Newsletter coming soon!')" class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:brightness-110 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
@@ -249,9 +246,6 @@
                         </div>
                     </div>
                     <div id="article-content-container"></div>
-                    
-                    <!-- Giscus Comments -->
-                    <div class="giscus"></div>
                 </div>
             </main>
 
@@ -486,46 +480,6 @@
             document.getElementById('count-dba').innerText = blogPosts.filter(p => p.category === 'dba').length;
         }
 
-        // --- LOAD GISCUS ---
-        function loadGiscus() {
-            const container = document.querySelector('.giscus');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const script = document.createElement('script');
-            script.src = "https://giscus.app/client.js";
-            
-            // Updated with your specific Repo info
-            script.setAttribute("data-repo", "Erevos-IV/sql-server-blog");
-            script.setAttribute("data-repo-id", "R_kgDOQe9_hQ");
-            // Using placeholders for category as per your script, though usually these need to be specific. 
-            // I'll leave them as placeholders for you to fill in or if they work as is.
-            script.setAttribute("data-category", "[ENTER CATEGORY NAME HERE]");
-            script.setAttribute("data-category-id", "[ENTER CATEGORY ID HERE]");
-            
-            script.setAttribute("data-mapping", "title"); 
-            script.setAttribute("data-strict", "0");
-            script.setAttribute("data-reactions-enabled", "1");
-            script.setAttribute("data-emit-metadata", "0");
-            script.setAttribute("data-input-position", "bottom");
-            script.setAttribute("data-theme", "preferred_color_scheme"); // Matches system/browser pref
-            script.setAttribute("data-lang", "en");
-            script.setAttribute("crossorigin", "anonymous");
-            script.async = true;
-
-            if (script.getAttribute("data-repo") === "your-username/your-repo") {
-                 // This block won't run now since we set the repo above
-                container.innerHTML = `
-                    <div class="text-center text-textMuted py-8 border border-dashed border-surfaceHighlight rounded-lg">
-                        <p>💬 Comments System Ready</p>
-                        <p class="text-xs mt-2">Owner: Set data-repo in index.html to enable.</p>
-                    </div>
-                `;
-            } else {
-                container.appendChild(script);
-            }
-        }
-
         function openArticle(id) {
             if (typeof blogPosts === 'undefined') return;
             const post = blogPosts.find(p => p.id === id);
@@ -670,9 +624,6 @@
                 wrapper.appendChild(downloadBtn);
                 wrapper.appendChild(copyBtn);
             });
-
-            // Load Comments!
-            loadGiscus();
 
             document.getElementById('home-view').classList.add('hidden-view');
             document.getElementById('article-view').classList.remove('hidden-view');
