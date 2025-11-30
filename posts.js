@@ -1,10 +1,40 @@
 const blogPosts = [
     {
+        id: 8,
+        title: "SQL Server 2025 is Here: The Real Breakdown",
+        category: "dba",
+        categoryColor: "green-400",
+        date: "Nov 30, 2025",
+        readTime: "4 min",
+        author: "Billy Gousetis",
+        summary: "Native Vectors, ZSTD Compression, and a massive buff to Standard Edition. Here is the no-fluff breakdown of what actually matters in SQL Server 2025.",
+        content: `
+# SQL Server 2025 is Here
+
+It’s officially here. If you haven't had time to dig through the release notes, here is the breakdown of what actually matters in SQL Server 2025.
+
+Microsoft is clear: **Bring the AI to the data, not the data to the AI.**
+
+### The Top 3 Developer Features
+1. **Native Vectors:** We finally have a \`VECTOR\` data type. You can store embeddings and run semantic search directly in the engine. No more ETLing data to a niche vector DB.
+2. **Native RegEx:** Goodbye, CLR functions. You can now use standard \`REGEXP_LIKE\` and \`REGEXP_REPLACE\` natively in T-SQL.
+3. **True JSON Data Type:** JSON is no longer just \`NVARCHAR(MAX)\`. It is now a native binary data type with dedicated locking and compression.
+
+### Quality Upgrades
+1. **Standard Edition Buff:** This is huge. The limits have been raised to **32 Cores** (up from 24) and **256GB RAM** (up from 128GB).
+2. **ZSTD Backup Compression:** A new compression algorithm that generally beats \`MS_XPRESS\` for speed and ratio on large datasets.
+3. **TempDB Governance:** You can now "sandbox" noisy queries to prevent them from hogging TempDB and causing spills that hurt everyone else.
+
+### Deprecated
+* **Web Edition:** Officially discontinued. If you're on it, it's time to look at Standard or Azure SQL.
+        `
+    },
+    {
         id: 7,
         title: "SQL Server 2022: Day 1 Configuration Checklist",
         category: "dba",
         categoryColor: "green-400",
-        date: "Nov 29, 2025",
+        date: "Nov 30, 2025",
         readTime: "5 min",
         author: "Billy Gousetis",
         summary: "SQL Server 2022 is a beast, but out of the box, it’s sleeping. Here is my 'Day 1' configuration checklist to unlock 40% more performance immediately.",
@@ -39,7 +69,7 @@ Here is my "Day 1" configuration checklist for any new High-Performance instance
         title: "Advanced Performance Tuning: Beyond Indexes",
         category: "performance",
         categoryColor: "primary",
-        date: "Nov 29, 2025",
+        date: "Nov 30, 2025",
         readTime: "12 min",
         author: "Billy Gousetis",
         summary: "You have optimized every query and built every index, but the server is still struggling. It's time to look at the architecture: Partitioning, Archiving, and VLDB strategies.",
