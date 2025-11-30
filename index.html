@@ -24,14 +24,14 @@
             theme: {
                 extend: {
                     colors: {
-                        background: '#0f172a', /* slate-900 */
-                        surface: '#1e293b',    /* slate-800 */
-                        surfaceHighlight: '#334155', /* slate-700 */
-                        primary: '#22d3ee',    /* cyan-400 */
-                        secondary: '#818cf8',  /* indigo-400 */
-                        textMain: '#f1f5f9',   /* slate-100 */
-                        textMuted: '#94a3b8',  /* slate-400 */
-                        accent: '#f59e0b',     /* amber-500 (Coffee Color) */
+                        background: 'var(--bg-color)', 
+                        surface: 'var(--surface-color)',    
+                        surfaceHighlight: 'var(--surface-highlight)', 
+                        primary: 'var(--primary-color)',    
+                        secondary: 'var(--secondary-color)',  
+                        textMain: 'var(--text-main)',   
+                        textMuted: 'var(--text-muted)',  
+                        accent: 'var(--accent-color)',     
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -42,88 +42,88 @@
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; }
+        :root {
+            /* Default to Dark Mode */
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --surface-highlight: #334155;
+            --primary-color: #22d3ee;
+            --secondary-color: #818cf8;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-color: #f59e0b;
+            --selection-color: #22d3ee;
+            --selection-text: #0f172a;
+        }
+
+        /* Light Mode Overrides */
+        [data-theme="light"] {
+            --bg-color: #f8fafc;        /* Slate 50 */
+            --surface-color: #ffffff;   /* White */
+            --surface-highlight: #e2e8f0; /* Slate 200 */
+            --primary-color: #0891b2;   /* Cyan 600 (Darker for readability) */
+            --secondary-color: #4f46e5; /* Indigo 600 */
+            --text-main: #0f172a;       /* Slate 900 */
+            --text-muted: #64748b;      /* Slate 500 */
+            --accent-color: #d97706;    /* Amber 600 */
+            --selection-color: #0891b2;
+            --selection-text: #ffffff;
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); transition: background-color 0.3s, color 0.3s; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* Prose Overrides */
-        .prose h1, .prose h2, .prose h3 { color: #f1f5f9; font-weight: 800; scroll-margin-top: 100px; }
-        .prose p { color: #cbd5e1; }
-        .prose strong { color: #22d3ee; }
-        .prose ul { color: #cbd5e1; }
-        .prose li::marker { color: #818cf8; }
-        .prose code { color: #f472b6; background: #334155; padding: 2px 4px; border-radius: 4px; font-weight: normal; }
-        .prose pre { background: #0d1117 !important; border: 1px solid #334155; color: #e2e8f0; } /* Plain styling */
+        /* Prose Overrides - Using Variables */
+        .prose h1, .prose h2, .prose h3 { color: var(--text-main); font-weight: 800; scroll-margin-top: 100px; }
+        .prose p { color: var(--text-muted); }
+        .prose strong { color: var(--primary-color); }
+        .prose ul { color: var(--text-muted); }
+        .prose li::marker { color: var(--secondary-color); }
+        .prose code { color: #d946ef; background: var(--surface-highlight); padding: 2px 4px; border-radius: 4px; font-weight: normal; }
+        /* Keep code blocks dark even in light mode for contrast */
+        .prose pre { background: #0f172a !important; border: 1px solid #334155; color: #e2e8f0; } 
         .prose pre code { background: transparent; padding: 0; color: inherit; }
-        .prose blockquote { border-left-color: #22d3ee; color: #94a3b8; font-style: italic; }
-        .prose a { color: #818cf8; text-decoration: none; }
+        .prose blockquote { border-left-color: var(--primary-color); color: var(--text-muted); font-style: italic; }
+        .prose a { color: var(--secondary-color); text-decoration: none; }
         .prose a:hover { text-decoration: underline; }
 
         /* Copy & Download Button Styling */
         .code-wrapper { position: relative; }
         .action-btn {
-            position: absolute;
-            top: 0.75rem;
-            padding: 0.4rem;
-            border-radius: 0.375rem;
-            background-color: transparent;
-            color: #94a3b8;
-            transition: all 0.2s;
-            opacity: 0;
-            border: 1px solid transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+            position: absolute; top: 0.75rem; padding: 0.4rem;
+            border-radius: 0.375rem; background-color: transparent;
+            color: #94a3b8; transition: all 0.2s; opacity: 0;
+            border: 1px solid transparent; display: flex;
+            align-items: center; justify-content: center; cursor: pointer;
         }
         .copy-btn { right: 0.75rem; }
-        .download-btn { right: 3rem; } /* Positioned to the left of copy */
+        .download-btn { right: 3rem; }
 
         .code-wrapper:hover .action-btn { opacity: 1; }
-        .action-btn:hover {
-            background-color: #334155;
-            color: #f1f5f9;
-            border-color: #475569;
-        }
-        .action-success {
-            color: #22d3ee !important;
-            border-color: #22d3ee !important;
-        }
+        .action-btn:hover { background-color: #334155; color: #f1f5f9; border-color: #475569; }
+        .action-success { color: #22d3ee !important; border-color: #22d3ee !important; }
 
-        /* Marquee Animation */
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        .animate-marquee {
-            /* Changed from 25s to 45s for slower speed */
-            animation: marquee 45s linear infinite; 
-            display: inline-block;
-            white-space: nowrap;
-        }
-        /* Pause on hover */
-        .marquee-container:hover .animate-marquee {
-            animation-play-state: paused;
-        }
+        /* Marquee */
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .animate-marquee { animation: marquee 45s linear infinite; display: inline-block; white-space: nowrap; }
+        .marquee-container:hover .animate-marquee { animation-play-state: paused; }
 
         /* Transitions */
         .fade-in { animation: fadeIn 0.3s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden-view { display: none; }
 
-        /* CUSTOM SELECTION HIGHLIGHT */
-        ::selection {
-            background: #22d3ee; /* Primary Cyan */
-            color: #0f172a; /* Dark Text */
-        }
+        /* Selection */
+        ::selection { background: var(--selection-color); color: var(--selection-text); }
 
-        /* PRINT STYLES - Clean PDF/Paper Output */
+        /* Print */
         @media print {
             body { background-color: white; color: black; padding-top: 0; }
             #announcement-bar, #main-nav, #reading-progress, aside, #back-to-top, .action-btn, button { display: none !important; }
             #main-container, main { width: 100%; max-width: 100%; margin: 0; padding: 0; }
             .bg-surface { background-color: white; border: none; box-shadow: none; }
             .text-textMuted { color: #555; }
-            .text-white { color: black; }
+            .text-textMain { color: black; }
             .prose { color: black; }
             .prose p, .prose li, .prose strong { color: black; }
             .prose code { background-color: #f0f0f0; color: #d63384; border: 1px solid #ddd; }
@@ -134,20 +134,19 @@
 </head>
 <body class="flex flex-col min-h-screen pt-10 transition-all duration-300">
 
-    <!-- FEATURE: Marquee Announcement Bar -->
+    <!-- Marquee -->
     <div id="announcement-bar" class="fixed top-0 left-0 right-0 h-10 bg-blue-900/90 border-b border-blue-800 z-[60] flex items-center overflow-hidden marquee-container backdrop-blur-sm">
         <div class="animate-marquee text-xs font-bold text-blue-100 flex gap-12">
             <span>🚀 Announcement: SQL Server 2025 General Availability is here!</span>
             <span>✨ New Features: Native Vector Search, AI-Driven Query Optimization, & T-SQL Copilot.</span>
             <span>🛡️ Best Practice: Always test in UAT before Deploying in Production.</span>
         </div>
-        <!-- Close Button -->
         <button onclick="dismissAnnouncement()" class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-blue-300 hover:text-white bg-blue-900/80 rounded z-10 cursor-pointer">
             <i data-lucide="x" class="w-4 h-4"></i>
         </button>
     </div>
 
-    <!-- FEATURE: Scroll Progress Bar (Below marquee) -->
+    <!-- Progress Bar -->
     <div id="reading-progress" class="fixed top-10 left-0 h-1 bg-primary z-[100] w-0 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(34,211,238,0.5)]"></div>
 
     <!-- Navigation -->
@@ -157,28 +156,33 @@
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer group" onclick="showHome()">
                         <i data-lucide="database" class="w-8 h-8 text-primary group-hover:rotate-12 transition-transform"></i>
-                        <span class="font-extrabold text-xl tracking-tight text-white">SQL Server <span class="text-primary">Insights</span></span>
+                        <span class="font-extrabold text-xl tracking-tight text-textMain">SQL Server <span class="text-primary">Insights</span></span>
                     </div>
                     
-                    <!-- Desktop Nav -->
                     <div class="hidden md:ml-8 md:flex md:space-x-4">
-                        <button onclick="filterCategory('all')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-white bg-surfaceHighlight">Latest</button>
-                        <button onclick="filterCategory('performance')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">Performance</button>
-                        <button onclick="filterCategory('tsql')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">T-SQL</button>
-                        <button onclick="filterCategory('dba')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-white hover:bg-surfaceHighlight transition">DBA Life</button>
+                        <button onclick="filterCategory('all')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMain bg-surfaceHighlight">Latest</button>
+                        <button onclick="filterCategory('performance')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surfaceHighlight transition">Performance</button>
+                        <button onclick="filterCategory('tsql')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surfaceHighlight transition">T-SQL</button>
+                        <button onclick="filterCategory('dba')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surfaceHighlight transition">DBA Life</button>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <!-- Search Bar -->
+                    <!-- Search -->
                     <div class="relative hidden md:block">
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
-                        <input type="text" placeholder="Search..." oninput="performSearch(this.value)" class="bg-surfaceHighlight text-sm rounded-full pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary w-40 focus:w-64 transition-all duration-300 placeholder-textMuted">
+                        <input type="text" placeholder="Search..." oninput="performSearch(this.value)" class="bg-surfaceHighlight text-sm rounded-full pl-9 pr-4 py-2 text-textMain focus:outline-none focus:ring-1 focus:ring-primary w-40 focus:w-64 transition-all duration-300 placeholder-textMuted">
                     </div>
-                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v4.9</div>
-                    <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
+                    
+                    <!-- Theme Toggle -->
+                    <button onclick="toggleTheme()" id="theme-toggle" class="p-2 rounded-full text-textMuted hover:bg-surfaceHighlight hover:text-primary transition" title="Toggle Theme">
+                        <i data-lucide="sun" class="w-5 h-5"></i>
+                    </button>
+
+                    <div class="hidden md:block text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">v5.0</div>
+                    <button class="bg-primary text-background px-4 py-2 rounded-md text-sm font-bold hover:brightness-110 transition shadow-lg shadow-cyan-500/20">Subscribe</button>
                 </div>
                 <div class="flex items-center md:hidden">
-                    <button onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white p-2">
+                    <button onclick="toggleMobileMenu()" class="text-textMuted hover:text-textMain p-2">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
                 </div>
@@ -188,12 +192,12 @@
             <div class="px-4 pt-4 pb-2 space-y-3">
                 <div class="relative w-full">
                     <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted"></i>
-                    <input type="text" placeholder="Search articles..." oninput="performSearch(this.value)" class="w-full bg-surfaceHighlight text-sm rounded-lg pl-9 pr-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary placeholder-textMuted">
+                    <input type="text" placeholder="Search articles..." oninput="performSearch(this.value)" class="w-full bg-surfaceHighlight text-sm rounded-lg pl-9 pr-4 py-2 text-textMain focus:outline-none focus:ring-1 focus:ring-primary placeholder-textMuted">
                 </div>
-                <button onclick="filterCategory('all'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-surfaceHighlight">Latest</button>
-                <button onclick="filterCategory('performance'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-surfaceHighlight">Performance</button>
-                <button onclick="filterCategory('tsql'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-surfaceHighlight">T-SQL</button>
-                <button onclick="filterCategory('dba'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-surfaceHighlight">DBA Life</button>
+                <button onclick="filterCategory('all'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-textMain hover:bg-surfaceHighlight">Latest</button>
+                <button onclick="filterCategory('performance'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surfaceHighlight">Performance</button>
+                <button onclick="filterCategory('tsql'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surfaceHighlight">T-SQL</button>
+                <button onclick="filterCategory('dba'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surfaceHighlight">DBA Life</button>
             </div>
         </div>
     </nav>
@@ -202,14 +206,12 @@
     <div id="main-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
         <div class="lg:grid lg:grid-cols-12 lg:gap-8 transition-all duration-500" id="layout-grid">
             
-            <!-- LEFT COLUMN: Content -->
+            <!-- LEFT COLUMN -->
             <main class="lg:col-span-8 transition-all duration-500" id="main-content-col">
-                
-                <!-- Home View -->
                 <div id="home-view" class="space-y-6 fade-in">
                     <div class="bg-gradient-to-r from-surface to-background border border-surfaceHighlight rounded-2xl p-8 mb-8 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-4 opacity-10"><i data-lucide="server" class="w-48 h-48"></i></div>
-                        <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-4 relative z-10">
+                        <div class="absolute top-0 right-0 p-4 opacity-10"><i data-lucide="server" class="w-48 h-48 text-textMain"></i></div>
+                        <h1 class="text-3xl sm:text-4xl font-extrabold text-textMain mb-4 relative z-10">
                             Master Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Data Platform</span>
                         </h1>
                         <p class="text-textMuted text-lg mb-6 max-w-xl relative z-10">
@@ -219,34 +221,32 @@
                     <div id="article-list-container" class="space-y-6"></div>
                 </div>
 
-                <!-- Article Detail -->
                 <div id="article-view" class="hidden-view space-y-6 fade-in">
-                    <!-- Controls Row -->
+                    <!-- Controls -->
                     <div class="flex justify-between items-center mb-6">
                         <button onclick="showHome()" class="text-textMuted hover:text-primary flex items-center gap-2 transition">
                             <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Articles
                         </button>
                         
                         <!-- Reader Tools -->
-                        <div class="flex items-center gap-2 bg-surfaceHighlight p-1 rounded-lg border border-slate-600/50">
-                            <button onclick="changeFontSize(-1)" class="w-8 h-8 flex items-center justify-center text-textMuted hover:text-white rounded hover:bg-slate-600 transition" title="Decrease Font Size">
+                        <div class="flex items-center gap-2 bg-surfaceHighlight p-1 rounded-lg border border-surfaceHighlight">
+                            <button onclick="changeFontSize(-1)" class="w-8 h-8 flex items-center justify-center text-textMuted hover:text-textMain rounded hover:bg-surface transition" title="Decrease Font Size">
                                 <span class="font-bold text-xs">A-</span>
                             </button>
-                            <button onclick="changeFontSize(1)" class="w-8 h-8 flex items-center justify-center text-textMuted hover:text-white rounded hover:bg-slate-600 transition" title="Increase Font Size">
+                            <button onclick="changeFontSize(1)" class="w-8 h-8 flex items-center justify-center text-textMuted hover:text-textMain rounded hover:bg-surface transition" title="Increase Font Size">
                                 <span class="font-bold text-base">A+</span>
                             </button>
-                            <div class="w-px h-4 bg-slate-600 mx-1"></div>
-                            <button onclick="toggleZenMode()" id="zen-btn" class="w-8 h-8 flex items-center justify-center text-textMuted hover:text-primary rounded hover:bg-slate-600 transition" title="Toggle Zen Mode">
+                            <div class="w-px h-4 bg-textMuted/30 mx-1"></div>
+                            <button onclick="toggleZenMode()" id="zen-btn" class="w-8 h-8 flex items-center justify-center text-textMuted hover:text-primary rounded hover:bg-surface transition" title="Toggle Zen Mode">
                                 <i data-lucide="expand" class="w-4 h-4"></i>
                             </button>
                         </div>
                     </div>
-
                     <div id="article-content-container"></div>
                 </div>
             </main>
 
-            <!-- RIGHT COLUMN: Sidebar -->
+            <!-- RIGHT COLUMN -->
             <aside id="sidebar-col" class="lg:block lg:col-span-4 space-y-6 mt-8 lg:mt-0 transition-all duration-500 origin-right">
                 <div class="bg-surface rounded-xl border border-surfaceHighlight p-6 lg:sticky lg:top-24">
                     <div class="flex items-center gap-4 mb-4">
@@ -256,7 +256,7 @@
                             </div>
                         </div>
                         <div>
-                            <h3 class="font-bold text-white">Billy Gousetis</h3>
+                            <h3 class="font-bold text-textMain">Billy Gousetis</h3>
                             <p class="text-xs text-textMuted">Database Administrator & Performance Specialist</p>
                         </div>
                     </div>
@@ -264,16 +264,15 @@
                         3 years of experience in Banking & Capital Markets. Specializing in Performance Tuning, Maintenance, Automation.
                     </p>
                     <div class="space-y-3">
-                        <a href="https://www.linkedin.com/in/vasileiosgoysetis-7378101b9/" target="_blank" class="block w-full text-center py-2 px-4 rounded-md bg-surfaceHighlight hover:bg-surfaceHighlight/80 border border-slate-600 text-sm font-medium text-white transition flex items-center justify-center gap-2">
+                        <a href="https://www.linkedin.com/in/vasileiosgoysetis-7378101b9/" target="_blank" class="block w-full text-center py-2 px-4 rounded-md bg-surfaceHighlight hover:bg-surfaceHighlight/80 border border-surfaceHighlight text-sm font-medium text-textMain transition flex items-center justify-center gap-2">
                             <i data-lucide="linkedin" class="w-4 h-4"></i> LinkedIn Profile
                         </a>
-                        <a href="https://vassileios-gousetis-dba.vercel.app" target="_blank" class="block w-full text-center py-2 px-4 rounded-md bg-surfaceHighlight hover:bg-surfaceHighlight/80 border border-slate-600 text-sm font-medium text-white transition flex items-center justify-center gap-2">
+                        <a href="https://vassileios-gousetis-dba.vercel.app" target="_blank" class="block w-full text-center py-2 px-4 rounded-md bg-surfaceHighlight hover:bg-surfaceHighlight/80 border border-surfaceHighlight text-sm font-medium text-textMain transition flex items-center justify-center gap-2">
                             <i data-lucide="briefcase" class="w-4 h-4"></i> View Portfolio
                         </a>
                         <a href="https://learn.microsoft.com/en-us/sql/sql-server/what-s-new-in-sql-server-2025?view=sql-server-ver17" target="_blank" class="block w-full text-center py-2.5 px-4 rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/20 text-sm font-bold text-primary transition flex items-center justify-center gap-2">
                             <i data-lucide="megaphone" class="w-4 h-4"></i> SQL Server 2025 GA
                         </a>
-                        <!-- FEATURE: Buy Me a Coffee (Sidebar) -->
                         <a href="https://buymeacoffee.com/ErevosIV" target="_blank" class="block w-full text-center py-2.5 px-4 rounded-md bg-accent/10 hover:bg-accent/20 border border-accent/20 text-sm font-bold text-accent transition flex items-center justify-center gap-2">
                             <i data-lucide="coffee" class="w-4 h-4"></i> Support My Work
                         </a>
@@ -285,15 +284,15 @@
                         </h4>
                         <div class="space-y-2">
                             <div onclick="filterCategory('performance')" class="flex justify-between items-center p-2 rounded hover:bg-surfaceHighlight cursor-pointer group transition">
-                                <span class="text-sm text-gray-300 group-hover:text-primary transition">Performance</span>
+                                <span class="text-sm text-textMuted group-hover:text-primary transition">Performance</span>
                                 <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted" id="count-performance">0</span>
                             </div>
                             <div onclick="filterCategory('tsql')" class="flex justify-between items-center p-2 rounded hover:bg-surfaceHighlight cursor-pointer group transition">
-                                <span class="text-sm text-gray-300 group-hover:text-secondary transition">T-SQL</span>
+                                <span class="text-sm text-textMuted group-hover:text-secondary transition">T-SQL</span>
                                 <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted" id="count-tsql">0</span>
                             </div>
                             <div onclick="filterCategory('dba')" class="flex justify-between items-center p-2 rounded hover:bg-surfaceHighlight cursor-pointer group transition">
-                                <span class="text-sm text-gray-300 group-hover:text-green-400 transition">Administration</span>
+                                <span class="text-sm text-textMuted group-hover:text-green-600 transition">Administration</span>
                                 <span class="text-xs bg-background px-2 py-0.5 rounded text-textMuted" id="count-dba">0</span>
                             </div>
                         </div>
@@ -303,29 +302,54 @@
         </div>
     </div>
 
-    <!-- Back to Top Button -->
-    <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-8 right-8 bg-primary text-background p-3 rounded-full shadow-lg shadow-cyan-500/50 hover:bg-cyan-300 transition-all duration-300 opacity-0 pointer-events-none z-50">
+    <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-8 right-8 bg-primary text-background p-3 rounded-full shadow-lg shadow-cyan-500/50 hover:brightness-110 transition-all duration-300 opacity-0 pointer-events-none z-50">
         <i data-lucide="arrow-up" class="w-6 h-6"></i>
     </button>
 
     <script>
         lucide.createIcons();
-        let currentFontSize = 100; // Percentage
+        let currentFontSize = 100;
         let isZenMode = false;
 
-        // --- NEW: Font Size Logic ---
+        // --- NEW: THEME TOGGLE LOGIC ---
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const icon = document.querySelector('#theme-toggle i');
+            
+            if (currentTheme === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                icon.setAttribute('data-lucide', 'sun');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                icon.setAttribute('data-lucide', 'moon');
+            }
+            lucide.createIcons();
+        }
+
+        // Initialize Theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.body.setAttribute('data-theme', savedTheme);
+        // We set icon in DOM based on default, but update if saved is light
+        if (savedTheme === 'light') {
+            document.addEventListener("DOMContentLoaded", () => {
+                const icon = document.querySelector('#theme-toggle i');
+                icon.setAttribute('data-lucide', 'moon');
+                lucide.createIcons();
+            });
+        }
+
+        // --- Standard Logic ---
         function changeFontSize(direction) {
             const content = document.getElementById('article-body');
             if (!content) return;
-            
-            // Limits: 80% to 150%
             if (direction === -1 && currentFontSize > 80) currentFontSize -= 10;
             if (direction === 1 && currentFontSize < 150) currentFontSize += 10;
-            
             content.style.fontSize = `${currentFontSize}%`;
         }
 
-        // --- NEW: Zen Mode Logic ---
         function toggleZenMode() {
             isZenMode = !isZenMode;
             const sidebar = document.getElementById('sidebar-col');
@@ -333,13 +357,11 @@
             const btn = document.getElementById('zen-btn');
 
             if (isZenMode) {
-                // Hide sidebar, expand main
                 sidebar.classList.add('hidden', 'lg:hidden');
                 mainCol.classList.remove('lg:col-span-8');
                 mainCol.classList.add('lg:col-span-12', 'max-w-4xl', 'mx-auto'); 
                 if(btn) btn.innerHTML = '<i data-lucide="shrink" class="w-4 h-4"></i>';
             } else {
-                // Restore layout
                 sidebar.classList.remove('hidden', 'lg:hidden');
                 mainCol.classList.add('lg:col-span-8');
                 mainCol.classList.remove('lg:col-span-12', 'max-w-4xl', 'mx-auto');
@@ -348,7 +370,6 @@
             lucide.createIcons();
         }
 
-        // --- Standard Features ---
         function toggleMobileMenu() {
             document.getElementById('mobile-menu').classList.toggle('hidden');
         }
@@ -404,7 +425,7 @@
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border uppercase ${tagClass}">${post.category}</span>
                                 <span class="text-textMuted text-xs font-mono">${dynReadTime} read</span>
                             </div>
-                            <h2 class="text-2xl font-bold text-white mb-3 hover:text-primary transition cursor-pointer flex items-center" onclick="openArticle(${post.id})">
+                            <h2 class="text-2xl font-bold text-textMain mb-3 hover:text-primary transition cursor-pointer flex items-center" onclick="openArticle(${post.id})">
                                 ${post.title} ${newBadge}
                             </h2>
                             <p class="text-textMuted mb-6 leading-relaxed">${post.summary}</p>
@@ -413,7 +434,7 @@
                                     <div class="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-background"><i data-lucide="terminal" class="w-4 h-4"></i></div>
                                     <span class="text-sm font-medium text-textMuted">${post.author} • ${post.date}</span>
                                 </div>
-                                <button onclick="openArticle(${post.id})" class="text-white text-sm font-bold flex items-center hover:underline">
+                                <button onclick="openArticle(${post.id})" class="text-textMain text-sm font-bold flex items-center hover:underline">
                                     Read Article <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
                                 </button>
                             </div>
@@ -428,7 +449,7 @@
         function getTagStyle(colorKey) {
             if (colorKey === 'primary') return 'bg-primary/10 text-primary border-primary/20';
             if (colorKey === 'secondary') return 'bg-secondary/10 text-secondary border-secondary/20';
-            return 'bg-green-500/10 text-green-400 border-green-500/20';
+            return 'bg-green-500/10 text-green-600 border-green-500/20';
         }
 
         function renderArticleList(filter = 'all') {
@@ -464,29 +485,27 @@
             const post = blogPosts.find(p => p.id === id);
             if (!post) return;
 
-            // Reset Zen Mode & Font Size when opening new article
             currentFontSize = 100;
             isZenMode = false;
-            // Need to manually reset layout classes if Zen was active
             document.getElementById('sidebar-col').classList.remove('hidden', 'lg:hidden');
             const mainCol = document.getElementById('main-content-col');
             mainCol.classList.add('lg:col-span-8');
             mainCol.classList.remove('lg:col-span-12', 'max-w-4xl', 'mx-auto');
-            document.querySelector('#zen-btn i')?.setAttribute('data-lucide', 'expand');
+            const zenBtn = document.getElementById('zen-btn');
+            if(zenBtn) zenBtn.innerHTML = '<i data-lucide="expand" class="w-4 h-4"></i>';
 
             const dynReadTime = calculateReadTime(post.content);
             const renderedContent = marked.parse(post.content);
             const contentContainer = document.getElementById('article-content-container');
             const tagClass = getTagStyle(post.categoryColor);
 
-            // --- FEATURE: Related Articles Logic ---
             const relatedPosts = blogPosts.filter(p => p.category === post.category && p.id !== post.id).slice(0, 2);
             let relatedHtml = '';
             
             if (relatedPosts.length > 0) {
                 relatedHtml = `
                     <div class="mt-12 pt-8 border-t border-surfaceHighlight">
-                        <h3 class="text-lg font-bold text-white mb-4">Read Next</h3>
+                        <h3 class="text-lg font-bold text-textMain mb-4">Read Next</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             ${relatedPosts.map(p => {
                                 const rTime = calculateReadTime(p.content);
@@ -496,7 +515,7 @@
                                         <span class="text-xs font-bold text-primary uppercase">${p.category}</span>
                                         <span class="text-textMuted text-xs">• ${rTime}</span>
                                     </div>
-                                    <h4 class="font-bold text-white group-hover:text-primary transition line-clamp-2">${p.title}</h4>
+                                    <h4 class="font-bold text-textMain group-hover:text-primary transition line-clamp-2">${p.title}</h4>
                                 </div>
                                 `;
                             }).join('')}
@@ -510,7 +529,7 @@
                     <div class="flex flex-wrap gap-4 mb-6">
                         <span class="px-3 py-1 rounded-full text-xs font-bold border uppercase ${tagClass}">${post.category}</span>
                     </div>
-                    <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-6 leading-tight">
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-textMain mb-6 leading-tight">
                         ${post.title}
                     </h1>
                     <div class="flex items-center gap-4 text-textMuted text-sm border-b border-surfaceHighlight pb-8 mb-8">
@@ -524,7 +543,7 @@
                         <span>${dynReadTime} read</span>
                     </div>
                     <div id="toc-container" class="mb-8 p-4 bg-background border border-surfaceHighlight rounded-lg hidden">
-                        <p class="text-sm font-bold text-white mb-2 uppercase tracking-wide">Table of Contents</p>
+                        <p class="text-sm font-bold text-textMain mb-2 uppercase tracking-wide">Table of Contents</p>
                         <ul id="toc-list" class="space-y-1 text-sm text-textMuted"></ul>
                     </div>
                     <div id="article-body" class="prose prose-invert max-w-none transition-all duration-200">
@@ -534,12 +553,10 @@
                     ${relatedHtml}
 
                     <div class="mt-12 pt-8 border-t border-surfaceHighlight">
-                        <p class="text-sm font-bold text-white mb-4">Share this article</p>
+                        <p class="text-sm font-bold text-textMain mb-4">Share this article</p>
                         <div class="flex gap-2">
-                             <a href="mailto:?subject=${encodeURIComponent(post.title)}&body=Check out this article: ${window.location.href}" class="bg-surfaceHighlight hover:bg-slate-600 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition"><i data-lucide="mail" class="w-4 h-4"></i> Email</a>
+                             <a href="mailto:?subject=${encodeURIComponent(post.title)}&body=Check out this article: ${window.location.href}" class="bg-surfaceHighlight hover:bg-surface/80 text-textMain border border-surfaceHighlight px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition"><i data-lucide="mail" class="w-4 h-4"></i> Email</a>
                              <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}" target="_blank" class="bg-[#0077b5]/20 hover:bg-[#0077b5]/30 text-[#0077b5] border border-[#0077b5]/30 px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition"><i data-lucide="linkedin" class="w-4 h-4"></i> LinkedIn</a>
-                             
-                             <!-- FEATURE: Buy Me a Coffee (Article Footer) -->
                              <a href="https://buymeacoffee.com/ErevosIV" target="_blank" class="bg-accent/20 hover:bg-accent/30 text-accent border border-accent/30 px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition ml-auto">
                                 <i data-lucide="coffee" class="w-4 h-4"></i> Support
                              </a>
@@ -616,13 +633,10 @@
             lucide.createIcons();
         }
 
-        // Updated showHome function
         function showHome() {
-            // Fix: Reset Zen Mode layout when going back to home
             if (isZenMode) {
                 toggleZenMode(); 
             }
-
             document.getElementById('article-view').classList.add('hidden-view');
             document.getElementById('home-view').classList.remove('hidden-view');
             document.getElementById('home-view').classList.add('fade-in');
@@ -632,11 +646,11 @@
         function filterCategory(category) {
             showHome();
             document.querySelectorAll('.nav-btn').forEach(b => {
-                b.classList.remove('bg-surfaceHighlight', 'text-white');
+                b.classList.remove('bg-surfaceHighlight', 'text-textMain');
                 b.classList.add('text-textMuted');
             });
             const btn = event.target.closest('button') || event.target;
-            btn.classList.add('bg-surfaceHighlight', 'text-white');
+            btn.classList.add('bg-surfaceHighlight', 'text-textMain');
             btn.classList.remove('text-textMuted');
             renderArticleList(category);
         }
