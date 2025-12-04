@@ -1,10 +1,64 @@
 const blogPosts = [
     {
+        id: 9,
+        title: "How to Install SSMS Offline (Air-Gapped Servers)",
+        category: "dba",
+        categoryColor: "green-400",
+        date: "Dec 04, 2025",
+        readTime: "5 min",
+        author: "Billy Gousetis",
+        summary: "Need to install SQL Server Management Studio on a server without internet? Here is the step-by-step guide to creating a local layout.",
+        content: `
+# Installing SSMS on Secure Servers
+
+In many enterprise environments (Banking, Defense, Healthcare), database servers are **air-gapped**—they have absolutely no internet access. 
+
+Simply copying the \`SSMS-Setup-ENU.exe\` file is not enough. The installer is just a "bootstrapper" that tries to download the actual packages during installation. If it can't reach the internet, it fails.
+
+Here is how to create a full offline layout.
+
+### Step 1: Download the Bootstrapper
+On a machine **with** internet access, download the latest SSMS installer from Microsoft. Let's assume it's saved to \`C:\\Downloads\\SSMS-Setup-ENU.exe\`.
+
+### Step 2: Create the Offline Layout
+You cannot just copy the exe. You must tell it to download *all* dependent components into a local folder.
+
+1. Open **Command Prompt (CMD)** as Administrator.
+2. Navigate to your download folder:
+   \`\`\`cmd
+   cd C:\\Downloads
+   \`\`\`
+3. Run the layout command:
+   \`\`\`cmd
+   SSMS-Setup-ENU.exe /layout "C:\\SSMS_Offline"
+   \`\`\`
+   *Replace \`C:\\SSMS_Offline\` with your desired folder path.*
+
+The installer will launch a GUI window. It might look like it's installing, but it is actually downloading the packages (Payloads) to your specified folder. **Wait until it says "Setup Completed"**.
+
+### Step 3: Transfer to the Server
+1. You will now have a folder (e.g., \`C:\\SSMS_Offline\`) containing the \`.exe\` and a \`Payload\` folder.
+2. Zip this entire folder.
+3. Move it to your secure, offline server using your company's approved method (USB, Secure File Transfer, etc.).
+
+### Step 4: Install on the Offline Server
+1. Unzip the folder on the destination server.
+2. **Crucial Step:** Before running setup, ensure you have the correct Root Certificates installed. 
+   *(See my previous post: [Fix: SSMS Offline Installation Certificate Error](#))*
+3. Run \`SSMS-Setup-ENU.exe\` from within the offline folder.
+4. It will now detect the local \`Payload\` folder and install without trying to connect to the internet.
+
+### References
+* [Install SQL Server Management Studio (SSMS) - Microsoft Learn](https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms)
+* [Create an offline installation of SSMS](https://learn.microsoft.com/en-us/ssms/install/create-offline)
+        `
+    },
+    {
         id: 8,
         title: "SQL Server 2025 is Here: The Real Breakdown",
         category: "dba",
         categoryColor: "green-400",
-        date: "Nov 30, 2025",
+        date: "Dec 02, 2025",
         readTime: "4 min",
         author: "Billy Gousetis",
         summary: "Native Vectors, ZSTD Compression, and a massive buff to Standard Edition. Here is the no-fluff breakdown of what actually matters in SQL Server 2025.",
@@ -34,7 +88,7 @@ Microsoft is clear: **Bring the AI to the data, not the data to the AI.**
         title: "SQL Server 2022: Day 1 Configuration Checklist",
         category: "dba",
         categoryColor: "green-400",
-        date: "Nov 30, 2025",
+        date: "Dec 01, 2025",
         readTime: "5 min",
         author: "Billy Gousetis",
         summary: "SQL Server 2022 is a beast, but out of the box, it’s sleeping. Here is my 'Day 1' configuration checklist to unlock 40% more performance immediately.",
