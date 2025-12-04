@@ -42,10 +42,13 @@ The installer will launch a GUI window. It might look like it's installing, but 
 3. Move it to your secure, offline server using your company's approved method (USB, Secure File Transfer, etc.).
 
 ### Step 4: Install on the Offline Server
-1. Unzip the folder on the destination server.
+1. Unzip the folder on the destination server (e.g. to \`C:\\SSMS_Layout\`).
 2. **Crucial Step:** Before running setup, ensure you have the correct Root Certificates installed. 
    *(See my previous post: [Fix: SSMS Offline Installation Certificate Error](#))*
-3. Run \`SSMS-Setup-ENU.exe\` from within the offline folder.
+3. Run the following command to execute the installation without web access:
+   \`\`\`cmd
+   C:\\SSMS_Layout\\vs_SSMS.exe --noWeb --add Microsoft.Component.HelpViewer
+   \`\`\`
 4. It will now detect the local \`Payload\` folder and install without trying to connect to the internet.
 
 ### References
