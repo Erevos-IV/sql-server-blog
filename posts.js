@@ -1,5 +1,93 @@
 const blogPosts = [
     {
+        id: 10,
+        title: "PowerShell for the Lazy DBA: Automating Daily Checks",
+        category: "dba",
+        categoryColor: "green-400",
+        date: "Dec 07, 2025",
+        readTime: "8 min",
+        author: "Billy Gousetis",
+        summary: "Stop logging into servers every morning. Here is a PowerShell script using dbatools to check disk space, backups, and service status across your entire estate in seconds.",
+        content: `
+# The "Lazy" DBA is the Best DBA
+
+If you are logging into your SQL Servers via Remote Desktop (RDP) every morning just to check if the C: drive is full or if last night's backup ran, **you are working too hard**.
+
+Manual checks are:
+1.  **Slow:** Logging into 10 servers takes 20 minutes.
+2.  **Prone to Error:** You might miss a warning because you haven't had your coffee yet.
+3.  **Unscalable:** What happens when your company adds 50 more instances?
+
+The solution is **PowerShell**, specifically the [dbatools](https://dbatools.io) module. It is the open-source standard for SQL automation.
+
+### Prerequisites
+
+You don't need to be a coding wizard. You just need to install the module on your workstation (or a management server):
+
+\`\`\`powershell
+# Run this once in PowerShell (Admin)
+Install-Module dbatools
+\`\`\`
+
+### The "Morning Coffee" Script
+
+Here is a script that checks **Disk Space** and **Last Backup Status** across a list of servers and exports the results to a nice HTML report or Grid View.
+
+\`\`\`powershell
+# 1. Define your list of servers
+$serverList = "SQLPROD01", "SQLPROD02", "SQLQA01"
+
+# 2. Check for Low Disk Space (Threshold: 20% Free)
+Write-Host "Checking Disks..." -ForegroundColor Cyan
+$diskReport = Get-DbaDiskSpace -ComputerName $serverList | 
+              Where-Object { $_.PercentFree -lt 20 } |
+              Select-Object ComputerName, Name, Label, TotalGB, FreeGB, PercentFree
+
+# 3. Check for Failed/Missing Backups (Threshold: 24 Hours)
+Write-Host "Checking Backups..." -ForegroundColor Cyan
+$backupReport = Get-DbaLastBackup -SqlInstance $serverList |
+                Where-Object { $_.LastFullBackup -lt (Get-Date).AddHours(-24) } |
+                Select-Object SqlInstance, Database, LastFullBackup, LastLogBackup
+
+# 4. Display Results
+if ($diskReport) {
+    Write-Warning "⚠️ LOW DISK SPACE DETECTED!"
+    $diskReport | Out-GridView -Title "Low Disk Space Alert"
+} else {
+    Write-Host "✅ All Disks Healthy" -ForegroundColor Green
+}
+
+if ($backupReport) {
+    Write-Warning "⚠️ MISSING BACKUPS DETECTED!"
+    $backupReport | Out-GridView -Title "Missing Backup Alert"
+} else {
+    Write-Host "✅ All Backups Current" -ForegroundColor Green
+}
+\`\`\`
+
+### How It Works
+
+* **\`Get-DbaDiskSpace\`**: Queries the OS level WMI to get drive capacity. It's much faster than querying SQL DMVs.
+* **\`Get-DbaLastBackup\`**: Scans \`msdb..backupset\` on every server. It automatically handles Availability Groups (AGs) to find where the backup actually ran.
+* **\`Out-GridView\`**: Opens a simple interactive popup window with the results.
+
+### Taking it Further (Automation)
+
+Running this manually is Step 1. Step 2 is scheduling it.
+
+1.  Save the script as \`DailyChecks.ps1\`.
+2.  Replace \`Out-GridView\` with \`Send-MailMessage\` to email yourself the HTML report.
+3.  Use **Windows Task Scheduler** to run it every day at 08:00 AM.
+
+Now, you only react when something is wrong, and you have freed up 20 minutes of your morning for actual engineering work.
+
+### References
+* [dbatools.io - Official Documentation](https://dbatools.io/commands/)
+* [Get-DbaDiskSpace Command Reference](https://docs.dbatools.io/Get-DbaDiskSpace)
+* [Get-DbaLastBackup Command Reference](https://docs.dbatools.io/Get-DbaLastBackup)
+        `
+    },
+    {
         id: 9,
         title: "How to Install SSMS Offline (Air-Gapped Servers)",
         category: "dba",
