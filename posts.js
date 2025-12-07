@@ -1,90 +1,81 @@
 const blogPosts = [
     {
         id: 10,
-        title: "PowerShell for the Lazy DBA: Automating Daily Checks",
-        category: "dba",
-        categoryColor: "green-400",
+        title: "Decoding Wait Statistics: The Pulse of Your Database",
+        category: "performance",
+        categoryColor: "primary",
         date: "Dec 07, 2025",
-        readTime: "8 min",
+        readTime: "7 min",
         author: "Billy Gousetis",
-        summary: "Stop logging into servers every morning. Here is a PowerShell script using dbatools to check disk space, backups, and service status across your entire estate in seconds.",
+        summary: "High CPU? Slow disks? Stop guessing. Learn how to use Wait Statistics to pinpoint exactly why SQL Server is running slow.",
         content: `
-# The "Lazy" DBA is the Best DBA
+# Stop Guessing. Start Measuring.
 
-If you are logging into your SQL Servers via Remote Desktop (RDP) every morning just to check if the C: drive is full or if last night's backup ran, **you are working too hard**.
+When a server is slow, the amateur looks at **Task Manager**. The professional looks at **Wait Statistics**.
 
-Manual checks are:
-1.  **Slow:** Logging into 10 servers takes 20 minutes.
-2.  **Prone to Error:** You might miss a warning because you haven't had your coffee yet.
-3.  **Unscalable:** What happens when your company adds 50 more instances?
+SQL Server tracks every millisecond it spends waiting for resources. Whether it's waiting for a disk to read a page, a lock to be released, or a CPU core to become available, it's all recorded in \`sys.dm_os_wait_stats\`.
 
-The solution is **PowerShell**, specifically the [dbatools](https://dbatools.io) module. It is the open-source standard for SQL automation.
+### The "Big Three" Waits
 
-### Prerequisites
+If you tune a server, you will likely run into these three. Here is what they mean:
 
-You don't need to be a coding wizard. You just need to install the module on your workstation (or a management server):
+#### 1. CXPACKET
+**The Myth:** "It means Parallelism is bad."
+**The Reality:** It just means your query is using multiple cores. However, if it is excessive (over 50% of total waits), it usually means your **Cost Threshold for Parallelism** is too low (default is 5). Bump it to 50.
 
-\`\`\`powershell
-# Run this once in PowerShell (Admin)
-Install-Module dbatools
+#### 2. PAGEIOLATCH_SH
+**The Meaning:** SQL Server is waiting to read a data page from disk into memory.
+**The Fix:** This is a physical I/O bottleneck. 
+1. Check if you have enough RAM (is **Page Life Expectancy** dropping?).
+2. Tune the query to read fewer pages (Indexing!).
+3. Check storage latency.
+
+#### 3. LCK_M_... (Blocking)
+**The Meaning:** Process A is holding a lock that Process B needs.
+**The Fix:** This is almost always a code issue. Look for long-running transactions, implicit transactions left open, or queries scanning too much data (escalating row locks to table locks).
+
+### The Diagnostic Script
+
+Don't just run \`SELECT * FROM sys.dm_os_wait_stats\`. That shows cumulative data since the last restart. You need to know what is hurting you *right now*.
+
+Use this script to see the top waits on your server:
+
+\`\`\`sql
+WITH [Waits] AS
+    (SELECT
+        [wait_type],
+        [wait_time_ms] / 1000.0 AS [WaitS],
+        ([wait_time_ms] - [signal_wait_time_ms]) / 1000.0 AS [ResourceS],
+        [signal_wait_time_ms] / 1000.0 AS [SignalS],
+        [waiting_tasks_count] AS [WaitCount],
+        100.0 * [wait_time_ms] / SUM ([wait_time_ms]) OVER() AS [Percentage],
+        ROW_NUMBER() OVER(ORDER BY [wait_time_ms] DESC) AS [RowNum]
+    FROM sys.dm_os_wait_stats
+    WHERE [wait_type] NOT IN (
+        -- Filter out benign background waits
+        'BROKER_TASK_STOP', 'CLR_AUTO_EVENT', 'CLR_MANUAL_EVENT', 
+        'DIRTY_PAGE_POLL', 'HADR_FILESTREAM_IOMGR_IOCOMPLETION', 
+        'LAZYWRITER_SLEEP', 'LOGMGR_QUEUE', 'ONDEMAND_TASK_QUEUE',
+        'REQUEST_FOR_DEADLOCK_SEARCH', 'SLEEP_TASK', 'TRACE_WRITE', 
+        'WAITFOR', 'CHECKPOINT_QUEUE', 'XE_TIMER_EVENT'
+    ))
+SELECT
+    [W1].[wait_type] AS [WaitType],
+    CAST ([W1].[WaitS] AS DECIMAL (16, 2)) AS [Wait_S],
+    CAST ([W1].[ResourceS] AS DECIMAL (16, 2)) AS [Resource_S],
+    CAST ([W1].[SignalS] AS DECIMAL (16, 2)) AS [Signal_S],
+    [W1].[WaitCount] AS [WaitCount],
+    CAST ([W1].[Percentage] AS DECIMAL (5, 2)) AS [Percentage]
+FROM [Waits] AS [W1]
+INNER JOIN [Waits] AS [W2] ON [W2].[RowNum] <= [W1].[RowNum]
+GROUP BY [W1].[RowNum], [W1].[wait_type], [W1].[WaitS], 
+         [W1].[ResourceS], [W1].[SignalS], [W1].[WaitCount], [W1].[Percentage]
+HAVING SUM ([W2].[Percentage]) - [W1].[Percentage] < 95; -- Top 95%
 \`\`\`
-
-### The "Morning Coffee" Script
-
-Here is a script that checks **Disk Space** and **Last Backup Status** across a list of servers and exports the results to a nice HTML report or Grid View.
-
-\`\`\`powershell
-# 1. Define your list of servers
-$serverList = "SQLPROD01", "SQLPROD02", "SQLQA01"
-
-# 2. Check for Low Disk Space (Threshold: 20% Free)
-Write-Host "Checking Disks..." -ForegroundColor Cyan
-$diskReport = Get-DbaDiskSpace -ComputerName $serverList | 
-              Where-Object { $_.PercentFree -lt 20 } |
-              Select-Object ComputerName, Name, Label, TotalGB, FreeGB, PercentFree
-
-# 3. Check for Failed/Missing Backups (Threshold: 24 Hours)
-Write-Host "Checking Backups..." -ForegroundColor Cyan
-$backupReport = Get-DbaLastBackup -SqlInstance $serverList |
-                Where-Object { $_.LastFullBackup -lt (Get-Date).AddHours(-24) } |
-                Select-Object SqlInstance, Database, LastFullBackup, LastLogBackup
-
-# 4. Display Results
-if ($diskReport) {
-    Write-Warning "⚠️ LOW DISK SPACE DETECTED!"
-    $diskReport | Out-GridView -Title "Low Disk Space Alert"
-} else {
-    Write-Host "✅ All Disks Healthy" -ForegroundColor Green
-}
-
-if ($backupReport) {
-    Write-Warning "⚠️ MISSING BACKUPS DETECTED!"
-    $backupReport | Out-GridView -Title "Missing Backup Alert"
-} else {
-    Write-Host "✅ All Backups Current" -ForegroundColor Green
-}
-\`\`\`
-
-### How It Works
-
-* **\`Get-DbaDiskSpace\`**: Queries the OS level WMI to get drive capacity. It's much faster than querying SQL DMVs.
-* **\`Get-DbaLastBackup\`**: Scans \`msdb..backupset\` on every server. It automatically handles Availability Groups (AGs) to find where the backup actually ran.
-* **\`Out-GridView\`**: Opens a simple interactive popup window with the results.
-
-### Taking it Further (Automation)
-
-Running this manually is Step 1. Step 2 is scheduling it.
-
-1.  Save the script as \`DailyChecks.ps1\`.
-2.  Replace \`Out-GridView\` with \`Send-MailMessage\` to email yourself the HTML report.
-3.  Use **Windows Task Scheduler** to run it every day at 08:00 AM.
-
-Now, you only react when something is wrong, and you have freed up 20 minutes of your morning for actual engineering work.
 
 ### References
-* [dbatools.io - Official Documentation](https://dbatools.io/commands/)
-* [Get-DbaDiskSpace Command Reference](https://docs.dbatools.io/Get-DbaDiskSpace)
-* [Get-DbaLastBackup Command Reference](https://docs.dbatools.io/Get-DbaLastBackup)
+* [sys.dm_os_wait_stats (Transact-SQL) - Microsoft Learn](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-os-wait-stats-transact-sql)
+* [SQLskills Wait Types Library](https://www.sqlskills.com/help/waits/)
         `
     },
     {
