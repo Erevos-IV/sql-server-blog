@@ -1,6 +1,52 @@
 const blogPosts = [
     {
-        id: 10,
+        id: 12,
+        title: "SQL Server 2025: Critical Known Issues (Dec 2025)",
+        category: "dba",
+        categoryColor: "green-400",
+        date: "Dec 24, 2025",
+        readTime: "6 min",
+        author: "Billy Gousetis",
+        summary: "Before you upgrade, read this. From TLS 1.2 blocking installations to ZSTD configuration errors, here are the top known issues in SQL Server 2025.",
+        content: `
+# SQL Server 2025: What Breaks?
+
+Every new release comes with teething issues. SQL Server 2025 is no exception. Before you deploy it to your sandbox or production, be aware of these critical known issues documented by Microsoft.
+
+### 1. Installation Fails without TLS 1.2
+**The Issue:** If you have disabled TLS 1.2 on your server (perhaps to enforce TLS 1.3 exclusively), the SQL Server 2025 installation **will fail**.
+**The Fix:** You must enable TLS 1.2 in the registry before starting the installation. You can disable it again after (though verify connectivity).
+
+### 2. In-Place Upgrade & C++ Redistributable
+**The Issue:** Upgrading from SQL 2016/2017 may fail if the **Microsoft Visual C++ Redistributable for Visual Studio 2022** is missing or outdated.
+**The Error:** You will see a log entry stating: *"This application requires Microsoft Visual C++ Redistributable... version 14.34 at minimum."*
+**The Fix:** Manually install the latest C++ Redistributable before running the SQL Setup.
+
+### 3. The 64-Core NUMA Limit
+**The Issue:** SQL Server instances on Windows might fail to start if the machine has more than **64 logical cores per NUMA node**.
+**The Fix:** This is a hard limit in the current build. You may need to adjust your BIOS/Virtualization settings to split cores into multiple NUMA nodes.
+
+### 4. ZSTD Backup Compression Configuration
+**The Issue:** While ZSTD is a great new feature, you cannot set it as the *default* server configuration using \`sp_configure\`.
+**The Error:** Running \`sp_configure 'backup compression algorithm', 3\` returns *Msg 15129: '3' is not a valid value.*
+**The Workaround:** You must specify it manually in your backup command:
+\`\`\`sql
+BACKUP DATABASE [MyDB] 
+TO DISK = 'C:\\Backups\\MyDB.bak' 
+WITH COMPRESSION (ALGORITHM = ZSTD);
+\`\`\`
+
+### 5. Linux Limitations
+* **Database Mail:** Does not work if "Strict Encryption" is enforced.
+* **SQLPS Module:** Does not work if "Strict Encryption" is enforced.
+* **ONNX Models:** Local ONNX models are currently not supported on Linux.
+
+### References
+* [SQL Server 2025 Known Issues - Microsoft Learn](https://learn.microsoft.com/en-us/sql/sql-server/sql-server-2025-known-issues?view=sql-server-ver17)
+        `
+    },
+    {
+        id: 11,
         title: "Decoding Wait Statistics: The Pulse of Your Database",
         category: "performance",
         categoryColor: "primary",
